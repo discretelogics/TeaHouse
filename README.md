@@ -4,6 +4,8 @@ It is a Visual Studio Shell extension. The shell is free available from Microsof
 
 This repository is provided as is.
 
+See also http://discretelogics.com/teahouse/
+
 <br />
 
 ![preview](https://github.com/discretelogics/TeaHouse/blob/master/teahouse1s.png)
