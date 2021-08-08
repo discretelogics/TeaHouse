@@ -1,0 +1,2055 @@
+﻿// copyright discretelogics © 2011
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Media;
+using NLog;
+using TeaTime.Chart.Core;
+using TeaTime.Chart.Markers;
+using TeaTime.Chart.Painters;
+using TeaTime.Data;
+using Microsoft.VisualStudio.Settings;
+using TeaTime.UI;
+
+namespace TeaTime.Chart
+{
+    public partial class ChartControl : ConstantFrameControl, ISelectable, IDisposable
+    {
+        static Logger logger = LogManager.GetCurrentClassLogger();
+
+        #region commands
+
+        public static RoutedCommand DrawingOptionsCommand = new RoutedCommand();
+        public static RoutedCommand ScaleFillCommand = new RoutedCommand();
+        public static RoutedCommand ScaleAbsoluteCommand = new RoutedCommand();
+        public static RoutedCommand ScaleFillLogarithmicCommand = new RoutedCommand();
+        public static RoutedCommand ResetScaleCommand = new RoutedCommand();
+        public static RoutedCommand ViewVolumeCommand = new RoutedCommand();
+
+        #endregion
+
+        #region properties
+
+        public static readonly DependencyProperty IsSimpleProperty = DependencyProperty<ChartControl, bool>.Register("IsSimple", false);
+        public static readonly DependencyProperty IsFixedLayoutProperty = DependencyProperty<ChartControl, bool>.Register("IsFixedLayout", false);
+        private bool isVolumeViewedByDefault;
+
+        /// <summary>
+        ///     Determines if the chart can display mutliple TimeSeriess or not.
+        /// </summary>
+        /// <remarks>
+        ///     If set, volumes will be opened with new FileHandles, drag operations opens new TeaFiles, and TeaFiles will be closed upon Remove.
+        /// </remarks>
+        public bool IsSimple
+        {
+            get { return (bool) GetValue(IsSimpleProperty); }
+            set { SetValue(IsSimpleProperty, value); }
+        }
+
+        /// <summary>
+        ///     Determines wether the chart can be scrolled or not.
+        /// </summary>
+        /// <remarks>
+        ///     If true, the chart can't be scrolled and will always disply the complete Tape.
+        /// </remarks>
+        public bool IsFixedLayout
+        {
+            get { return (bool) GetValue(IsFixedLayoutProperty); }
+            set { SetValue(IsFixedLayoutProperty, value); }
+        }
+
+        public new bool IsInitialized
+        {
+            get { return isInitialized; }
+        }
+
+        internal Range TapeRange
+        {
+            get { return tapeRange; }
+        }
+
+        internal TapeViewBase TapeView
+        {
+            get { return tapeView; }
+        }
+
+        internal int TimeMarkerCount
+        {
+            get { return timeMarkers.Count; }
+        }
+
+        private IEnumerable<ITeaFileT> Tss
+        {
+            get
+            {
+                IEnumerable<ITeaFileT> tss = new List<ITeaFileT>();
+                ForEachPanel(p => tss = tss.Union(p.Tss));
+                return tss;
+            }
+        }
+
+        public IEnumerable<TsVisualization> Tvs
+        {
+            get
+            {
+                List<TsVisualization> tvs = new List<TsVisualization>();
+                ForEachPanel(p => tvs.AddRange(p.Tvs));
+                return tvs;
+            }
+        }
+
+        private IEnumerable<ITeaFileT> SelectedTss
+        {
+            get
+            {
+                IEnumerable<ITeaFileT> selected = new List<ITeaFileT>();
+                ForEachPanel(p => selected = selected.Union(p.SelectedTss));
+                return selected;
+            }
+        }
+
+        public IEnumerable<TsVisualization> SelectedTvs
+        {
+            get
+            {
+                List<TsVisualization> selected = new List<TsVisualization>();
+                ForEachPanel(p => selected.AddRange(p.SelectedTvs));
+                return selected;
+            }
+        }
+
+        private bool HasValidState
+        {
+            get { return isInitialized && !isDisposed; }
+        }
+
+        public bool IsVolumeViewedByDefault
+        {
+            get { return isVolumeViewedByDefault; }
+            set { isVolumeViewedByDefault = value; }
+        }
+
+        #endregion
+
+        #region ctor, Initialize, Dispose
+
+        public ChartControl()
+        {
+            InitializeComponent();
+            InitializeStyles();
+
+            childPanels = new List<ChartPanelControls>();
+            tapeRange = new Range();
+            timeMode = DateTimeMode.TimeAndDate;
+            movingTimes = new SortedList<DateTime, double>();
+            movingOddEvenDates = new SortedList<DateTime, bool>();
+
+            timeMarkers = new List<Marker>();
+            dateMarkers = new List<DateMarker>();
+            cursorMarkers = new Dictionary<ICursor, Marker>();
+            painterButtons = new List<ToggleButton>();
+
+            isVolumeViewedByDefault = false;
+        }
+
+        public override void Dispose()
+        {
+            if (!isDisposed)
+            {
+                isDisposing = true;
+
+                #region destroy TimeAxis
+
+                List<Marker> markers = new List<Marker>(timeMarkers);
+                foreach (Marker marker in markers)
+                {
+                    RemoveTimeMarker(marker);
+                }
+                List<DateMarker> dms = new List<DateMarker>(dateMarkers);
+                foreach (DateMarker dm in dms)
+                {
+                    RemoveDateMarker(dm);
+                }
+
+                #endregion
+
+                cursorMarkers.Values.ForEach(cm => cm.Dispose());
+                cursorMarkers.Clear();
+
+                ForEachPanel(panel => panel.Dispose());
+
+                base.Dispose();
+
+                isDisposed = true;
+                isDisposing = false;
+            }            
+        }
+
+        private void InitializeStyles()
+        {
+            if (!areStylesInitialized)
+            {
+                toolbarButtonStyle = (Style) FindResource("ToolbarButton");
+                toolbarImageStyle = (Style) FindResource("ToolbarImage");
+                panelSplitterStyle = (Style) FindResource("PanelSplitter");
+
+                areStylesInitialized = true;
+            }
+        }
+
+        public void Initialize(ISelectionService selectionService)
+        {
+            if (!isInitialized)
+            {
+                this.selectionService = selectionService;
+
+                if (IsSimple)
+                {
+                    tapeView = new SimpleTapeView();
+                }
+                else
+                {
+                    tapeView = new TapeView();
+                }
+                tapeView.LengthChanged += (s, e) => UpdateScrollBar(e.Value);
+                tapeView.ScaleFactorChanged += (s, e) =>
+                                                {
+                                                    if (!isScaleFactorChangedIgnored)
+                                                    {
+                                                        UpdateScrollBar(tapeView.Length);
+                                                    }
+                                                };
+
+                ForEachPanel(p => p.Initialize(this));
+
+                isInitialized = true;
+            }
+            else
+            {
+                throw new InvalidOperationException("This Chart was already initialized.");
+            }
+        }
+
+        #endregion
+
+        #region public methods
+
+        public void SetTapeIndex(int targetIndex)
+        {
+            GuardState();
+
+            double targetPosition = tapeView.PositionAt(targetIndex);
+            targetPosition = Math.Max(tapeScrollBar.Minimum, targetPosition);
+            tapeScrollBar.Value = targetPosition;
+        }
+
+        public void Add(IEnumerable<IGrouping<int, ITeaFileT>> tss)
+        {
+            Guard.ArgumentNotNull(tss, "tss");
+            GuardState();
+
+            var xxxxx = tss.ToArray();
+
+            var addedTvs = new List<TsVisualization>();
+            foreach (var gtss in tss)
+            {
+                int panelIndex = gtss.Key;
+                if (panelIndex < 0)
+                {
+                    throw new ArgumentException("PanelIndex cannot be smaller 0.");
+                }
+
+                ChartPanel panel = GetOrCreatePanelAt(panelIndex);
+
+                addedTvs.AddRange(panel.Add(gtss));
+
+                if (IsVolumeViewedByDefault)
+                {
+                    var vTvs = addedTvs.Where(tv => tv.TimeSeries.IsVolumeSupported());
+                    if (vTvs.Any())
+                    {
+                        vTvs.ForEach(ViewVolume);
+                        UpdateViewVolumeButton(SelectedTvs);
+                    }
+                }
+            }
+            tapeView.Add(addedTvs.Select(tv => tv.TimeSeries));
+        }
+
+        public void Update(IEnumerable<IGrouping<int, ITeaFileT>> tss)
+        {
+            Guard.ArgumentNotNull(tss, "tss");
+            GuardState();
+
+            #region remember current settings
+            DateTime? scrollTime = null;
+            if (!tapeRange.IsEmpty)
+            {
+                scrollTime = tapeView.TimeAt(tapeRange.Start);
+            }
+
+            var settings = Tvs.Select(tv =>
+                new
+                {
+                    Name = tv.TimeSeries.Name,
+                    IsVolume = tv.IsVolume,
+                    PainterActivator = tv.PainterActivator,
+                    DrawingAttributes = tv.DrawingAttributes,
+                    Panel = FindPanel(cp => cp.Tvs.Contains(tv))
+                });
+            #endregion
+
+            #region remove all tss
+            Remove(Tvs);
+            #endregion
+
+            #region add tss again
+            var addedTvs = new List<TsVisualization>();
+            foreach (var gtss in tss)
+            {
+                int panelIndex = gtss.Key;
+                if (panelIndex < 0)
+                {
+                    throw new ArgumentException("PanelIndex cannot be smaller 0.");
+                }
+
+                foreach (var ts in gtss)
+                {
+                    TsVisualization tv;
+
+                    var tsSetting = settings.FirstOrDefault(s => (s.Name == ts.Name) && !s.IsVolume);
+                    if (tsSetting == null)
+                    {
+                        var panel = GetOrCreatePanelAt(gtss.Key);
+                        tv = panel.Add(new[] { ts }).Single();
+                    }
+                    else
+                    {
+                        var panel = tsSetting.Panel;
+                        PainterActivator pa = null;
+                        // validate that the timeseries hasn't changed its type and can therefore no longer be drawn with the same painter
+                        if (tsSetting.PainterActivator.DefaultInstance.SupportedEventTypes.Contains(ts.Description.ItemDescription.ItemTypeName))
+                        {
+                            pa = tsSetting.PainterActivator;
+                        }
+                        tv = panel.Add(ts, pa, tsSetting.DrawingAttributes, false);
+                    }
+                    addedTvs.Add(tv);
+
+                    if (ts.IsVolumeSupported())
+                    {
+                        var volumeSetting = settings.FirstOrDefault(s => (s.Name == ts.Name) && s.IsVolume);
+                        if (volumeSetting != null)
+                        {
+                            ViewVolume(tv, volumeSetting.Panel);
+                        }
+                        else if (IsVolumeViewedByDefault)
+                        {
+                            ViewVolume(tv);
+                        }
+                    }
+                }
+            }
+            tapeView.Add(addedTvs.Select(tv => tv.TimeSeries));
+            #endregion
+
+            UpdateViewVolumeButton(SelectedTvs);
+            if (scrollTime.HasValue)
+            {
+                tapeScrollBar.Value = tapeView.PositionAt(tapeView.IndexAt(scrollTime.Value, Range.Infinite));
+            }
+        }
+
+        public void Clear()
+        {
+            Remove(Tvs);
+        }
+
+        #region settings
+
+        // TODO: store for each ts on remove
+        public void ReadSettings(SettingsStore store, string settingsCollectionPath)
+        {
+            if (store.CollectionExists(settingsCollectionPath))
+            {
+                #region painter
+
+                foreach (var propertyName in store.GetPropertyNames(settingsCollectionPath).Where(s => s.EndsWith(".DefaultPainter")))
+                {
+                    string itemTypeName = propertyName.Substring(0, propertyName.LastIndexOf(".DefaultPainter"));
+                    if (!String.IsNullOrWhiteSpace(itemTypeName))
+                    {
+                        string defaultPainter = store.GetString(settingsCollectionPath, propertyName, null);
+                        if (!String.IsNullOrWhiteSpace(defaultPainter))
+                        {
+                            Type defaultPainterType = Type.GetType(defaultPainter);
+                            if (defaultPainterType != null)
+                            {
+                                PainterActivator defaultActivator = PainterManager.Instance.FindPainterByType(defaultPainterType);
+                                if (defaultActivator != null)
+                                {
+                                    PainterManager.Instance.SetDefaultPainter(itemTypeName, defaultActivator);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+
+                #region volume
+
+                IsVolumeViewedByDefault = store.GetBoolean(settingsCollectionPath, "IsVolumeDisplayedByDefault", IsVolumeViewedByDefault);
+
+                #endregion
+
+                #region DrawingAttributes
+
+                int i = 0;
+                while (true)
+                {
+                    string xaml = store.GetString(settingsCollectionPath, String.Concat("DefaultDrawingAttributes", i), null);
+                    if (String.IsNullOrWhiteSpace(xaml))
+                    {
+                        break;
+                    }
+                    var da = XamlReader.Parse(xaml) as DrawingAttributes;
+                    if (da != null)
+                    {
+                        DrawingManager.Instance.SetDefaultDrawingAttributes(da, i);
+                    }
+                    ++i;
+                }
+
+                #endregion
+            }
+        }
+
+        public void StoreSettings(WritableSettingsStore store, string settingsCollectionPath)
+        {
+            store.CreateCollection(settingsCollectionPath);
+
+            var tvs = Tvs.ToArray();
+
+            #region painter
+
+            foreach (var tv in tvs)
+            {
+                var painterType = tv.Painter.GetType();
+                store.SetString(settingsCollectionPath, String.Concat(tv.TimeSeries.Description.ItemDescription.ItemTypeName, ".DefaultPainter"), painterType.AssemblyQualifiedName);
+            }
+
+            #endregion
+
+            #region volume
+
+            List<TsVisualization> noVTvs;
+            bool isVolumeDisplayedByDefault = FindVolumeTvs(tvs, out noVTvs).Any();
+            store.SetBoolean(settingsCollectionPath, "IsVolumeDisplayedByDefault", isVolumeDisplayedByDefault);
+
+            #endregion
+
+            #region DrawingAttributes
+
+            for (int i = 0; i < tvs.Length; i++)
+            {
+                var da = tvs[i].DrawingAttributes;
+                string xaml = XamlWriter.Save(da);
+                store.SetString(settingsCollectionPath, String.Concat("DefaultDrawingAttributes", i), xaml);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #endregion
+
+        #region ISelectable Members
+
+        public void Select(ISelectable sender)
+        {
+            Marker marker = (Marker) sender;
+            double position = marker.ActualPosition;
+            int index = timeMarkers.IndexOf(marker);
+
+            ForEachPanel(panel => panel.SelectTimeMarker(index, marker));
+
+            foreach (DateMarker dm in dateMarkers)
+            {
+                if (dm.IsInRange(position))
+                {
+                    dm.IsSelected = true;
+                }
+            }
+        }
+
+        public void Deselect(ISelectable sender)
+        {
+            Marker marker = (Marker) sender;
+            int index = timeMarkers.IndexOf(marker);
+
+            ForEachPanel(panel => panel.DeselectTimeMarker(index, marker));
+
+            foreach (DateMarker dm in dateMarkers)
+            {
+                dm.IsSelected = false;
+            }
+        }
+
+        #endregion
+
+        #region internal methods
+
+        internal void Remove(IEnumerable<TsVisualization> tvs)
+        {
+            Guard.ArgumentNotNull(tvs, "tvs");
+            GuardState();
+
+            ForEachPanel(p =>
+                            {
+                                var pTvs = p.Tvs.Intersect(tvs).ToArray();
+                                if (pTvs.Any())
+                                {
+                                    p.Remove(pTvs, !IsSimple);
+                                }
+                            }
+                );
+
+            var remainingTss = Tss;
+            tapeView.Remove(tvs.Select(tv => tv.TimeSeries).Where(ts => !remainingTss.Contains(ts)));
+
+            if (!isDisposing)
+            {
+                if (tvs.Any(tv => tv.IsVolume))
+                {
+                    UpdateViewVolumeButton(SelectedTvs);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Recalcs the Chart's own Margin in case a YScalePanel was removed or added on a ChartPanel.
+        /// </summary>
+        internal void RecalcMargin()
+        {
+            double left = 0;
+            double right = 0;
+
+            ForEachPanel(p =>
+                            {
+                                left = Math.Max(left, Math.Abs(p.Margin.Left));
+                                right = Math.Max(right, Math.Abs(p.Margin.Right));
+                            }
+                );
+
+            content.Margin = new Thickness(left, 0, right, 0);
+        }
+
+        internal void DragTimeSeries(Geometry pathGeometry, TsVisualization tv, ChartPanel sender)
+        {
+            GuardState();
+
+            draggingPathStart = Mouse.GetPosition(this);
+            draggingYOffset = panelContainer.RowDefinitions[Grid.GetRow(sender)].Offset;
+
+            // set 0-offset before setting Path.Data to prevent it from being drawn on old position
+            Canvas.SetLeft(draggingPath, 0);
+            Canvas.SetTop(draggingPath, draggingYOffset);
+
+            draggingPath.Data = pathGeometry;
+            draggingTv = tv;
+            draggingSource = sender;
+            isDragging = true;
+        }
+
+        #region TimeSeries-Selection
+
+        internal void ClearSelection()
+        {
+            suppressSelectionChanged = true;
+            ForEachPanel(p => p.ClearSelection());
+
+            suppressSelectionChanged = false;
+            SelectionChanged();
+        }
+
+        internal void SelectionChanged()
+        {
+            if (!suppressSelectionChanged)
+            {
+                var selectedTss = SelectedTss;
+                var selectedTvs = SelectedTvs;
+                bool isSelected = selectedTvs.Any();
+
+                #region toolbar
+
+                #region painter
+
+                IEnumerable<PainterActivator> availablePainters = null;
+                if (isSelected)
+                {
+                    selectedTss.ForEach(ts =>
+                                            {
+                                                var tsPainters = PainterManager.Instance.GetAvailablePainters(ts.Description.ItemDescription.ItemTypeName);
+                                                if (availablePainters == null)
+                                                {
+                                                    availablePainters = tsPainters;
+                                                }
+                                                else
+                                                {
+                                                    availablePainters = availablePainters.Intersect(tsPainters);
+                                                }
+                                            }
+                        );
+                }
+                else
+                {
+                    availablePainters = new List<PainterActivator>();
+                }
+                List<PainterActivator> existingPainters = new List<PainterActivator>();
+                List<ToggleButton> obsoleteButtons = new List<ToggleButton>();
+                foreach (ToggleButton painterButton in painterButtons)
+                {
+                    PainterActivator p = (PainterActivator) painterButton.Tag;
+                    if (availablePainters.Contains(p))
+                    {
+                        existingPainters.Add(p);
+                    }
+                    else
+                    {
+                        obsoleteButtons.Add(painterButton);
+                    }
+                }
+
+                foreach (ToggleButton b in obsoleteButtons)
+                {
+                    b.Click -= painter_Click;
+
+                    painterButtons.Remove(b);
+                    toolBar.Items.Remove(b);
+                }
+
+                if (availablePainters.Any())
+                {
+                    painterEnd.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    painterEnd.Visibility = Visibility.Collapsed;
+                }
+
+                foreach (PainterActivator p in availablePainters.Except(existingPainters))
+                {
+                    Image painterImage = new Image();
+                    painterImage.Source = p.DefaultInstance.Image ?? ResourcesUtility.GetImage("Painter.png");
+                    painterImage.Style = toolbarImageStyle;
+
+                    ToggleButton painterButton = new ToggleButton();
+                    painterButton.Tag = p;
+                    painterButton.ToolTip = "Draw with " + p.DefaultInstance.Text;
+                    painterButton.Style = toolbarButtonStyle;
+                    painterButton.Content = painterImage;
+                    painterButton.Click += painter_Click;
+
+                    painterButtons.Add(painterButton);
+                    toolBar.Items.Insert(toolBar.Items.IndexOf(painterEnd), painterButton);
+                }
+
+                toolBar.InvalidateMeasure();
+
+                UpdateSelectedPainterButton(selectedTvs);
+
+                #endregion
+
+                #region YScaleMode
+
+                UpdateSelectedYScaleModeButton(selectedTvs);
+
+                #endregion
+
+                #region Volume
+
+                UpdateViewVolumeButton(selectedTvs);
+
+                #endregion
+
+                #endregion
+
+                if (selectionService != null)
+                {
+                    selectionService.SelectTimeSeriess(this, selectedTss);
+                }
+            }
+        }
+
+        internal void YScaleModeChanged(IEnumerable<TsVisualization> tvs)
+        {
+            Guard.ArgumentNotNull(tvs, "tvs");
+
+            var selectedTvs = SelectedTvs;
+            if (tvs.Intersect(selectedTvs).Any())
+            {
+                UpdateSelectedYScaleModeButton(selectedTvs);
+            }
+        }
+
+        #endregion
+
+        #region Move/Zoom
+
+        internal void MoveRange(double deltaPixel)
+        {
+            if (isInitialized)
+            {
+                double scrollValue = tapeScrollBar.Value + deltaPixel;
+                if (scrollValue < tapeScrollBar.Minimum)
+                {
+                    scrollValue = tapeScrollBar.Minimum;
+                }
+                if (scrollValue > tapeScrollBar.Maximum)
+                {
+                    scrollValue = tapeScrollBar.Maximum;
+                }
+
+                tapeScrollBar.Value = scrollValue;
+            }
+        }
+
+        internal void ZoomRangePosition(double startPosition, double endPosition)
+        {
+            if (isInitialized && (Math.Abs(endPosition - startPosition) > minXZoomDistance))
+            {
+                int actualStartIndex = tapeRange.Start;
+                int actualEndIndex = tapeRange.End;
+                double offset = content.ActualWidth - (tapeView.PositionAt(actualStartIndex) + tapeView.WidthAt(actualStartIndex));
+
+                int endIndex = -1;
+                int startIndex = -1;
+
+                for (int i = actualStartIndex; i <= actualEndIndex; i++)
+                {
+                    double left = offset + tapeView.PositionAt(i);
+                    double right = left + tapeView.WidthAt(i);
+
+                    if ((startPosition >= left) && (startPosition < right))
+                    {
+                        endIndex = i;
+                    }
+
+                    if ((endPosition >= left) && (endPosition < right))
+                    {
+                        startIndex = i;
+                    }
+
+                    if ((endIndex >= 0) && (startIndex >= 0))
+                    {
+                        break;
+                    }
+                }
+
+                if ((endIndex < 0) || (startIndex < 0) || (Math.Abs(startIndex - endIndex) <= 0))
+                {
+                    return;
+                }
+
+                int leftIndex;
+                int rightIndex;
+                if (endIndex < startIndex)
+                {
+                    // zoom in
+                    leftIndex = endIndex;
+                    rightIndex = startIndex;
+                }
+                else
+                {
+                    // zoom out
+                    int delta = endIndex - startIndex; // will be added on both sides
+                    leftIndex = tapeRange.End - delta;
+                    rightIndex = tapeRange.Start + delta;
+                    if (leftIndex < 0)
+                    {
+                        leftIndex = 0;
+                    }
+                    if (rightIndex >= tapeView.Length)
+                    {
+                        rightIndex = tapeView.Length - 1;
+                    }
+                }
+
+                if ((rightIndex != tapeRange.Start) ||
+                    (leftIndex != tapeRange.End))
+                {
+                    tapeRange.Start = rightIndex;
+                    tapeRange.End = leftIndex;
+                    tapeView.ScaleRangeToWidth(tapeRange, content.ActualWidth);
+                }
+            }
+        }
+
+        #endregion
+
+        #region CursorMarkers
+
+        internal void UpdateCursorMarker(ChartPanel sender, ICursor cursor, double position)
+        {
+            if (!tapeRange.IsEmpty)
+            {
+                double contentWidth = content.ActualWidth;
+                double right = tapeView.PositionAt(tapeRange.Start) + tapeView.WidthAt(tapeRange.Start);
+                double tapePosition = right - (contentWidth - position);
+                if (tapePosition >= 0)
+                {
+                    int ti = tapeView.IndexAt(tapePosition);
+                    string timeDisplayString;
+                    if (timeMode == DateTimeMode.TimeAndDate)
+                    {
+                        timeDisplayString = tapeView.TimeAt(ti).ToTimeDisplayString();
+                    }
+                    else // show complete date for DayAndMonth & MonthAndYear
+                    {
+                        timeDisplayString = tapeView.TimeAt(ti).ToDateDisplayString();
+                    }
+                    cursorMarkers[cursor].Update(position, timeDisplayString);
+                    double left = contentWidth - (right - tapeView.PositionAt(ti));
+                    ForEachPanel(p => p.UpdateTimeSliceMarker(cursor, left, tapeView.WidthAt(ti)));
+                    ItemSelected(sender, ti);
+                }
+
+                foreach (DateMarker dm in dateMarkers)
+                {
+                    dm.IsSelected = dm.IsInRange(position);
+                }
+            }
+        }
+
+        internal void AddCursorMarker(ICursor cursor)
+        {
+            GuardState();
+
+            Marker marker = new Marker(timeMarkerContainer, null, MarkerAlignment.Top, false, false);
+            marker.Background = timeMarkerContainer.Background;
+            cursorMarkers.Add(cursor, marker);
+
+            ForEachPanel(p => p.AddTimeSliceMarker(cursor));
+        }
+
+        internal void RemoveCursorMarker(ICursor cursor)
+        {
+            GuardState();
+
+            cursorMarkers[cursor].Dispose();
+            cursorMarkers.Remove(cursor);
+
+            ForEachPanel(p => p.RemoveTimeSliceMarker(cursor));
+
+            foreach (DateMarker dm in dateMarkers)
+            {
+                dm.IsSelected = false;
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region protected methods
+
+        protected override void UpdateFrameElements()
+        {
+            tapeRange = tapeView.ComputeTapeRange(tapeRange);
+
+            // time axis updated immediately...
+            UpdateTimeAxis();
+
+            // ...but panels are dispatched. Nevertheless it is ensure that all panels are updated at once.
+            this.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,
+                                        new Action<Range>((tr) =>
+                                                            {
+                                                                if (HasValidState)
+                                                                {
+                                                                    ForEachPanel(panel => panel.Update(tr));
+                                                                }
+                                                            }), tapeRange);
+        }
+
+        #endregion
+
+        #region private methods
+
+        private void GuardState()
+        {
+            if (!isInitialized)
+            {
+                throw new InvalidOperationException("This Chart is not initialized.");
+            }            
+        }
+
+        private void RollbackDragging()
+        {
+            draggingPath.Data = null;
+
+            Canvas.SetLeft(draggingPath, 0);
+            Canvas.SetTop(draggingPath, 0);
+
+            draggingTv = null;
+            draggingSource = null;
+            isDragging = false;
+        }
+
+        #region ViewVolume
+
+        TsVisualization FindVolumeTv(TsVisualization tv)
+        {
+            if (tv == null) throw new ArgumentNullException("tv");
+
+            return Tvs.FirstOrDefault(ttv => ttv.IsVolume && ttv.TimeSeries.Id == tv.TimeSeries.Id);
+        }
+
+        private List<TsVisualization> FindVolumeTvs(IEnumerable<TsVisualization> selectedTvs, out List<TsVisualization> noVolumeTvs)
+        {
+            var volumeTvs = new List<TsVisualization>();
+            noVolumeTvs = new List<TsVisualization>();
+            foreach (var selectedTv in selectedTvs)
+            {
+                var volumeTv = FindVolumeTv(selectedTv);
+                if (volumeTv != null)
+                {
+                    volumeTvs.Add(volumeTv);
+                }
+                else
+                {
+                    noVolumeTvs.Add(selectedTv);
+                }
+            }
+            return volumeTvs;
+        }
+
+        private void ViewVolume(TsVisualization tv)
+        {
+            var panel = AddChartPanel(rootChartPanel.ActualHeight * 0.25);
+        }
+        private void ViewVolume(TsVisualization tv, ChartPanel panel)
+        {
+            ITeaFileT ts = tv.TimeSeries;
+            if (!IsSimple)
+            {
+                // open new filehandle, because ts will be closed on Remove
+                ts = TeaFactory.Instance.OpenReadTyped(ts.Stream, false);
+            }
+            try
+            {
+                panel.Add(ts, PainterManager.Instance.FindPainterByType(typeof (HistogramPainter)), tv.DrawingAttributes, true);
+            }
+            catch
+            {
+                if (!IsSimple)
+                {
+                    ts.Dispose();
+                }
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region tape
+
+        private void UpdateScrollBar(int tapeLength)
+        {
+            var sw = Stopwatch.StartNew();
+
+            isValueChangedIgnored = true;
+
+            if (tapeLength > 0)
+            {
+                double contentWidth = content.ActualWidth;
+                if (IsFixedLayout)
+                {
+                    tapeScrollBar.Maximum =
+                        tapeScrollBar.SmallChange =
+                        tapeScrollBar.LargeChange =
+                        tapeScrollBar.Minimum =
+                        tapeScrollBar.ViewportSize = 0;
+
+                    isScaleFactorChangedIgnored = true;
+                    tapeRange.Start = 0;
+                    tapeRange.End = tapeLength - 1;
+                    tapeView.ScaleRangeToWidth(tapeRange, contentWidth);
+                    isScaleFactorChangedIgnored = false;
+                }
+                else
+                {
+                    int startIndexAtMinimum = tapeView.IndexAt(contentWidth);
+                    double screenWidth = tapeView.PositionAt(startIndexAtMinimum);
+                    double sliceWidth = tapeView.WidthAt(0); // TODO: snap to custom slice-widths
+
+                    tapeScrollBar.Maximum = tapeView.PositionAt(0);
+                    tapeScrollBar.SmallChange = sliceWidth;
+                    tapeScrollBar.LargeChange = sliceWidth*10;
+                    tapeScrollBar.Minimum = screenWidth - tapeView.WidthAt(tapeLength - 1);
+                    tapeScrollBar.ViewportSize = screenWidth;
+
+                    if ((tapeRange.Start > startIndexAtMinimum) && (startIndexAtMinimum >= 0))
+                    {
+                        tapeRange.Start = startIndexAtMinimum;
+                    }
+                    CalcTapeRangeEnd(tapeLength, contentWidth);
+                    tapeScrollBar.Value = tapeView.PositionAt(tapeRange.Start);
+
+                    if (selectionService != null)
+                    {
+                        selectionService.SetTapeIndex(this, tapeRange.Start);
+                    }
+                }
+            }
+            else
+            {
+                tapeScrollBar.Maximum =
+                    tapeScrollBar.SmallChange =
+                    tapeScrollBar.LargeChange =
+                    tapeScrollBar.Minimum =
+                    tapeScrollBar.ViewportSize = 0;
+
+                tapeRange = Range.Empty;
+            }
+
+            isValueChangedIgnored = false;
+
+            UpdateFrame();
+
+            Trace.WriteLine(sw.Elapsed.TotalMilliseconds);
+            logger.Log(LogLevel.Debug, sw.Elapsed.TotalMilliseconds.ToString());
+        }
+
+        #endregion
+
+        #region ChartPanel handling
+
+        private void ForEachPanel(Action<ChartPanel> action)
+        {
+            action.Invoke(rootChartPanel);
+            foreach (ChartPanelControls child in childPanels)
+            {
+                action.Invoke(child.Panel);
+            }
+        }
+
+        private ChartPanel FindPanel(Func<ChartPanel, bool> predicate)
+        {
+            if (predicate.Invoke(rootChartPanel))
+            {
+                return rootChartPanel;
+            }
+            foreach (ChartPanelControls child in childPanels)
+            {
+                if (predicate.Invoke(child.Panel))
+                {
+                    return child.Panel;
+                }
+            }
+            return null;
+        }
+
+        private ChartPanel AddChartPanel(double panelTotalHeight)
+        {
+            #region Create Splitter
+
+            GridSplitter splitter = new GridSplitter();
+            splitter.VerticalAlignment = VerticalAlignment.Center;
+            splitter.Style = panelSplitterStyle;
+            splitter.DragCompleted += onChildSplitter_DragCompleted;
+
+            #endregion
+
+            #region add required rows
+
+            int firstRowIndex = panelContainer.RowDefinitions.Count;
+
+            // add the required rows:
+            RowDefinition splitterRow = new RowDefinition();
+            splitterRow.Height = new GridLength(splitter.Height);
+            panelContainer.RowDefinitions.Add(splitterRow);
+
+            RowDefinition panelRow = new RowDefinition();
+            // calc the height relative to the star-height of the rootChartRow
+            panelRow.Height = new GridLength(((panelTotalHeight - splitterRow.Height.Value)/
+                                              rootChartPanel.ActualHeight)*rootChartRow.Height.Value, GridUnitType.Star);
+            panelContainer.RowDefinitions.Add(panelRow);
+
+            #endregion
+
+            #region Add Splitter
+
+            Grid.SetRow(splitter, firstRowIndex);
+
+            panelContainer.Children.Add(splitter);
+
+            #endregion
+
+            #region Create & Add panel
+
+            ChartPanel panel = new ChartPanel();
+            panel.Initialize(this);
+
+            Grid.SetRow(panel, firstRowIndex + 1);
+
+            panelContainer.Children.Add(panel);
+            childPanels.Add(new ChartPanelControls(panel, splitter));
+
+            #endregion
+
+            return panel;
+        }
+
+        private void RemovePanel(ChartPanelControls pc)
+        {
+            bool computeRequired = pc.Panel.Tss.Any();
+            int lastRowIndex = Grid.GetRow(pc.Panel);
+
+            #region Remove panel
+
+            panelContainer.Children.Remove(pc.Panel);
+            pc.Panel.Dispose();
+
+            #endregion
+
+            #region Remove splitter
+
+            pc.Splitter.DragCompleted -= onChildSplitter_DragCompleted;
+            panelContainer.Children.Remove(pc.Splitter);
+
+            #endregion
+
+            #region Remove Rows
+
+            panelContainer.RowDefinitions.RemoveAt(lastRowIndex); // deletes the panelRow
+            panelContainer.RowDefinitions.RemoveAt(lastRowIndex - 1); // deletes the splitterRow
+
+            foreach (UIElement child in panelContainer.Children)
+            {
+                int oldIndex = Grid.GetRow(child);
+                if (oldIndex > lastRowIndex)
+                {
+                    Grid.SetRow(child, oldIndex - 2);
+                }
+            }
+
+            #endregion
+
+            childPanels.Remove(pc);
+        }
+
+        private ChartPanel GetOrCreatePanelAt(int index)
+        {
+            if (index == 0)
+            {
+                return rootChartPanel;
+            }
+            else
+            {
+                double height = panelContainer.ActualHeight;
+                while (childPanels.Count < index)
+                {
+                    AddChartPanel(height / (childPanels.Count + 2));
+                }
+                return childPanels[index - 1].Panel;
+            }
+        }
+
+        #endregion
+
+        #region Selection updates
+
+        private IEnumerable<TsVisualization> ExecuteForSelection(Action<ChartPanel, IEnumerable<TsVisualization>> action, bool applyToVolume)
+        {
+            var selectedTvs = SelectedTvs;
+
+            ForEachPanel(p =>
+                            {
+                                var pTvs = p.Tvs.Intersect(selectedTvs);
+                                if (pTvs.Any())
+                                {
+                                    action.Invoke(p, pTvs);
+                                }
+                            });
+
+            #region volume
+
+            if (applyToVolume)
+            {
+                List<TsVisualization> noVolumeTvs;
+                var volumeTvs = FindVolumeTvs(selectedTvs, out noVolumeTvs);
+
+                ForEachPanel(p =>
+                                {
+                                    var pTvs = p.Tvs.Intersect(volumeTvs);
+                                    if (pTvs.Any())
+                                    {
+                                        action.Invoke(p, pTvs);
+                                    }
+                                });
+            }
+
+            #endregion
+
+            return selectedTvs;
+        }
+
+        private void SetPainter(PainterActivator painterActivator)
+        {
+            var selectedTvs = ExecuteForSelection((p, tvs) => p.SetPainter(tvs, painterActivator), false);
+            UpdateFrame();
+
+            UpdateSelectedPainterButton(selectedTvs);
+        }
+
+        private void UpdateSelectedPainterButton(IEnumerable<TsVisualization> selectedTvs)
+        {
+            PainterActivator selectedPainterActivator = selectedTvs.SelectAllEqualOrDefault(tv => tv.PainterActivator);
+
+            if (selectedPainterActivator == null)
+            {
+                painterButtons.ForEach(pb => { pb.IsChecked = false; });
+            }
+            else
+            {
+                painterButtons.ForEach(pb => { pb.IsChecked = (selectedPainterActivator == (PainterActivator) (pb.Tag)); });
+            }
+        }
+
+        private void SetYScaleMode(YScaleMode mode)
+        {
+            var selectedTvs = ExecuteForSelection((p, tvs) => p.SetYScaleMode(tvs, mode), true);
+            UpdateFrame();
+        }
+
+        private void UpdateSelectedYScaleModeButton(IEnumerable<TsVisualization> selectedTvs)
+        {
+            YScaleMode? selectedMode = selectedTvs.SelectAllEqualOrDefault(tv =>
+                                                                           new YScaleMode?(tv.YScalerInternal.ScaleMode)
+                );
+
+            if (selectedMode.HasValue)
+            {
+                scaleFillButton.IsChecked = selectedMode == YScaleMode.Fill;
+                scaleAbsoluteButton.IsChecked = selectedMode == YScaleMode.Absolute;
+                scaleFillLogarithmicButton.IsChecked = selectedMode == YScaleMode.FillLog10;
+            }
+            else
+            {
+                scaleFillButton.IsChecked = false;
+                scaleAbsoluteButton.IsChecked = false;
+                scaleFillLogarithmicButton.IsChecked = false;
+            }
+        }
+
+        private void UpdateViewVolumeButton(IEnumerable<TsVisualization> selectedTvs)
+        {
+            List<TsVisualization> noVolumeTvs;
+            var volumeTvs = FindVolumeTvs(selectedTvs, out noVolumeTvs);
+
+            viewVolumeButton.IsChecked = volumeTvs.Count > noVolumeTvs.Count;
+        }
+
+        #endregion
+
+        #region TapeRange
+
+        private void CalcTapeRangeEnd(int tapeLength, double contentWidth)
+        {
+            double right = tapeView.PositionAt(tapeRange.Start) + tapeView.WidthAt(tapeRange.Start);
+            double left = Math.Max(right - contentWidth, 0);
+            int leftIndex = tapeView.IndexAt(left);
+            if (tapeView.PositionAt(leftIndex) < left) // do not draw partial slices
+            {
+                --leftIndex;
+            }
+            tapeRange.End = leftIndex;
+        }
+
+        #endregion
+
+        #region TimeAxis
+
+        // TODO: review
+        private void UpdateTimeAxis()
+        {
+            Dictionary<DateTime, double> positionTimes = new Dictionary<DateTime, double>();
+            Dictionary<DateTime, RangeD> rangeDates = new Dictionary<DateTime, RangeD>();
+
+            if (tapeRange != Range.Empty)
+            {
+                int startIndex = tapeRange.Start;
+                int endIndex = tapeRange.End;
+                int rangeLength = tapeRange.Length;
+                double actualWidth = content.ActualWidth;
+                double offset = actualWidth - (tapeView.PositionAt(startIndex) + tapeView.WidthAt(startIndex));
+                double maxTimePosition = actualWidth - minTimeDistance;
+                double previousDateMiddle = double.MaxValue;
+                double previousTimeMiddle = double.MaxValue;
+                DateTime previousDateTime = DateTime.MaxValue;
+                bool previousDateTimeSet = false;
+                RangeD currentDateRange = new RangeD(0.0, actualWidth);
+
+                List<double> lefts = new List<double>(rangeLength);
+                List<double> widths = new List<double>(rangeLength);
+                List<double> middles = new List<double>(rangeLength);
+                List<DateTime> dateTimes = new List<DateTime>(rangeLength);
+
+                #region precalc positions
+
+                for (int i = startIndex; i <= endIndex; i++)
+                {
+                    double left = offset + tapeView.PositionAt(i);
+                    lefts.Add(left);
+
+                    double width = tapeView.WidthAt(i);
+                    widths.Add(width);
+
+                    middles.Add(left + (width/2));
+
+                    dateTimes.Add(tapeView.TimeAt(i));
+                }
+
+                #endregion
+
+                // Possible performance gain: don't calc last two times twice
+
+                #region Calc TimeMode
+
+                if (dateTimes.Count >= 2)
+                {
+                    if (dateTimes[0].TimeOfDay == dateTimes[1].TimeOfDay)
+                    {
+                        if (dateTimes[0].Year - dateTimes[dateTimes.Count - 1].Year > 2)
+                        {
+                            timeMode = DateTimeMode.MonthAndYear;
+                        }
+                        else
+                        {
+                            timeMode = DateTimeMode.DayAndMonth;
+                        }
+                    }
+                    else
+                    {
+                        timeMode = DateTimeMode.TimeAndDate;
+                    }
+                }
+
+                #endregion
+
+                #region cached times
+
+                for (int i = movingTimes.Count - 1; i >= 0; --i)
+                {
+                    DateTime dt = movingTimes.ElementAt(i).Key;
+                    if (!dateTimes.Contains(dt))
+                    {
+                        movingTimes.RemoveAt(i);
+                    }
+                    else
+                    {
+                        int j = dateTimes.IndexOf(dt);
+                        double middle = middles[j];
+                        if ((middle < minTimeDistance) ||
+                            (middle > maxTimePosition) ||
+                            (Math.Abs(previousTimeMiddle - middle) < minTimeDistance))
+                        {
+                            movingTimes.RemoveAt(i);
+                        }
+                        else
+                        {
+                            movingTimes[dt] = middle;
+                            positionTimes.Add(dt, middle);
+                            previousTimeMiddle = middle;
+                        }
+                    }
+                }
+                previousTimeMiddle = double.MaxValue;
+
+                #endregion
+
+                for (int i = 0; i < rangeLength; ++i)
+                {
+                    double left = lefts[i];
+                    double width = widths[i];
+                    double middle = middles[i];
+                    DateTime dateTime = dateTimes[i];
+
+                    bool timeCandidate = (i == 0);
+
+                    if ((timeMode == DateTimeMode.TimeAndDate) && (dateTime.Date < previousDateTime.Date) ||
+                        (timeMode == DateTimeMode.DayAndMonth) && (dateTime.Month < previousDateTime.Month) ||
+                        (timeMode == DateTimeMode.MonthAndYear) && (dateTime.Year < previousDateTime.Year))
+                    {
+                        if (previousDateTimeSet) // we need to wait with adding the date, because we need to find its beginning
+                        {
+                            if (timeMode == DateTimeMode.TimeAndDate)
+                            {
+                                rangeDates.Add(previousDateTime.Date, currentDateRange);
+                            }
+                            else if (timeMode == DateTimeMode.DayAndMonth)
+                            {
+                                rangeDates.Add(previousDateTime.MonthDate(), currentDateRange);
+                            }
+                            else
+                            {
+                                rangeDates.Add(previousDateTime.YearDate(), currentDateRange);
+                            }
+                            previousDateMiddle = middle;
+                        }
+
+                        timeCandidate = true;
+                        currentDateRange = new RangeD(left, left + width);
+                    }
+                    else
+                    {
+                        currentDateRange.Start = left;
+                    }
+
+                    if (positionTimes.ContainsKey(dateTime))
+                    {
+                        previousTimeMiddle = middle;
+                    }
+                    else
+                    {
+                        if (timeCandidate &&
+                            ((previousTimeMiddle - middle) >= minTimeDistance) &&
+                            (middle >= minTimeDistance))
+                        {
+                            if (i != 0)
+                            {
+                                movingTimes.Add(dateTime, middle);
+                            }
+                            // search the SortedList for the next entry
+                            int next = movingTimes.IndexOfKey(dateTime) - 1;
+                            if ((next >= 0) &&
+                                ((middle - movingTimes.ElementAt(next).Value) < minTimeDistance))
+                            {
+                                movingTimes.Remove(dateTime);
+                            }
+                            else
+                            {
+                                positionTimes.Add(dateTime, middle);
+                                previousTimeMiddle = middle;
+                            }
+                        }
+                    }
+
+                    previousDateTime = dateTime;
+                    previousDateTimeSet = true;
+                }
+
+                if (previousDateTimeSet)
+                {
+                    if (timeMode == DateTimeMode.TimeAndDate)
+                    {
+                        rangeDates.Add(previousDateTime.Date, currentDateRange);
+                    }
+                    else if (timeMode == DateTimeMode.DayAndMonth)
+                    {
+                        rangeDates.Add(previousDateTime.MonthDate(), currentDateRange);
+                    }
+                    else
+                    {
+                        rangeDates.Add(previousDateTime.YearDate(), currentDateRange);
+                    }
+                }
+
+                ItemSelected(selectedItemChartPanel, startIndex);
+            }
+
+            #region Remove unused TimeMarkers
+
+            int tmCount = positionTimes.Count;
+            if (timeMarkers.Count > tmCount)
+            {
+                List<Marker> unused = timeMarkers.GetRange(tmCount, timeMarkers.Count - tmCount);
+                foreach (Marker marker in unused)
+                {
+                    RemoveTimeMarker(marker);
+                }
+            }
+
+            #endregion
+
+            #region Create and Update TimeMarkers
+
+            int index = 0;
+            for (int i = tmCount - 1; i >= 0; i--)
+            {
+                if (index >= timeMarkers.Count)
+                {
+                    Marker timeMarker = new Marker(timeMarkerContainer, this, MarkerAlignment.Top, true, false);
+                    timeMarkers.Add(timeMarker);
+
+                    ForEachPanel(panel => panel.AddTimeMarker());
+                }
+
+                KeyValuePair<DateTime, double> positionDateTime = positionTimes.ElementAt(i);
+                DateTime date = positionDateTime.Key;
+                double position = positionDateTime.Value;
+                string timeDisplayString;
+                if (timeMode == DateTimeMode.TimeAndDate)
+                {
+                    timeDisplayString = date.ToTimeDisplayString();
+                }
+                else if (timeMode == DateTimeMode.DayAndMonth)
+                {
+                    timeDisplayString = date.ToDateDisplayString();
+                }
+                else
+                {
+                    timeDisplayString = date.ToMonthDisplayString();
+                }
+
+                timeMarkers[index].Update(position, timeDisplayString);
+                ForEachPanel(panel => panel.UpdateTimeMarker(index, position));
+
+                ++index;
+            }
+
+            #endregion
+
+            int dmCount = rangeDates.Count;
+
+            #region Remove unused DateMarkers
+
+            while (dateMarkers.Count > dmCount)
+            {
+                RemoveDateMarker(dateMarkers.Last());
+            }
+
+            #endregion
+
+            #region Create DateMarkers
+
+            double timeMarkerHeight = timeMarkerContainer.Height;
+            while (dateMarkers.Count < dmCount)
+            {
+                DateMarker dateMarker = new DateMarker();
+
+                timeMarkerContainer.Children.Add(dateMarker);
+                Canvas.SetTop(dateMarker, timeMarkerHeight - dateMarker.Height);
+
+                dateMarkers.Add(dateMarker);
+            }
+
+            #endregion
+
+            #region Update DateMarkers
+
+            #region Calculate Odd/Even
+
+            // TODO: performance: cache some older values (e.g. when displaying only one date, color won't be changed)
+            List<DateTime> obsoleteDates = new List<DateTime>();
+            movingOddEvenDates.Keys.ForEach(dt => { if (!rangeDates.ContainsKey(dt)) obsoleteDates.Add(dt); });
+            obsoleteDates.ForEach(dt => movingOddEvenDates.Remove(dt));
+
+            if (dmCount > 0)
+            {
+                DateTime? firstOddEvenDate = null;
+                if (movingOddEvenDates.Count > 0)
+                {
+                    KeyValuePair<DateTime, bool> kv = movingOddEvenDates.ElementAt(0);
+                    firstOddEvenDate = kv.Key;
+                    oddEvenStart = kv.Value;
+                }
+
+                // we need to cache the list of all displayed dates, because we don't know if the range is moved or zoomed
+                foreach (DateTime dt in rangeDates.Keys)
+                {
+                    if (!movingOddEvenDates.ContainsKey(dt))
+                    {
+                        movingOddEvenDates.Add(dt, false);
+                    }
+                }
+
+                if (firstOddEvenDate != null)
+                {
+                    int i = movingOddEvenDates.IndexOfKey(firstOddEvenDate.Value);
+                    if (i%2 != 0)
+                    {
+                        oddEvenStart = !oddEvenStart;
+                    }
+                }
+
+                int dtIndex = 0;
+                foreach (DateTime dt in movingOddEvenDates.Keys.ToArray())
+                {
+                    movingOddEvenDates[dt] = (dtIndex%2 == 0) ? oddEvenStart : !oddEvenStart;
+                    ++dtIndex;
+                }
+
+                oddEvenStart = !oddEvenStart; // change start-value in case we display only one date-marker
+
+                #endregion
+
+                for (int i = 0; i < dmCount; ++i)
+                {
+                    DateMarker dm = dateMarkers[i];
+
+                    KeyValuePair<DateTime, RangeD> rangeDate = rangeDates.ElementAt(i);
+                    dm.IsEven = movingOddEvenDates[rangeDate.Key];
+                    dm.TimeMode = timeMode;
+                    dm.Update(rangeDate.Value.Start, rangeDate.Value.End, rangeDate.Key);
+                }
+            }
+
+            #endregion
+        }
+
+        private void RemoveTimeMarker(Marker timeMarker)
+        {
+            timeMarker.Dispose();
+            int index = timeMarkers.IndexOf(timeMarker);
+            timeMarkers.RemoveAt(index);
+
+            ForEachPanel(p => p.RemoveTimeMarker(index));
+        }
+
+        private void RemoveDateMarker(DateMarker dateMarker)
+        {
+            timeMarkerContainer.Children.Remove(dateMarker);
+            dateMarkers.Remove(dateMarker);
+        }
+
+        #endregion
+
+        #region item selection
+
+        // TODO: execute async where possible
+        private void ItemSelected(ChartPanel panel, int tapeIndex)
+        {
+            selectedItemChartPanel = panel;
+            ITeaFileT ts = null;
+            if (panel != null)
+            {
+                ts = panel.SelectedTss.LastOrDefault();
+                if (ts == null)
+                {
+                    ts = panel.Tss.LastOrDefault();
+                }
+            }
+            if (ts == null)
+            {
+                ts = SelectedTss.LastOrDefault();
+                if (ts == null)
+                {
+                    ts = Tss.LastOrDefault();
+                }
+            }
+
+            ItemSelected(ts, tapeIndex);
+        }
+
+        private unsafe void ItemSelected(ITeaFileT ts, int tapeIndex)
+        {
+            if (selectedItemTapeIndex != tapeIndex || selectedItemTs != ts)
+            {
+                selectedItemTapeIndex = tapeIndex;
+
+                if ((selectedItemTs != ts) || (selectedItemPanel.Children.Count == 0))
+                {
+                    selectedItemTs = ts;
+                    selectedItemPanel.Children.Clear();
+                    if (ts == null)
+                    {
+                        selectedItemPanel.Children.Add(new NameValueView {NameText = "TapeIndex"});
+                    }
+                    else
+                    {
+                        selectedItemPanel.Children.Add(new NameValueView {NameText = "Name", ValueText = ts.Name});
+                        selectedItemPanel.Children.Add(new NameValueView {NameText = "Index"});
+                        ts.Description.ItemDescription.Fields.ForEach(f => selectedItemPanel.Children.Add(new NameValueView {NameText = f.Name}));
+                    }
+                }
+
+                if (ts == null)
+                {
+                    ((NameValueView) selectedItemPanel.Children[0]).ValueText = tapeIndex.ToString();
+                }
+                else
+                {      
+                    var tsi = tapeView.GetTimeSeriesEnd(ts, tapeIndex);
+                    ((NameValueView)selectedItemPanel.Children[1]).ValueText = tsi.ToString();
+                    int i = 2;
+#if false // tbd
+                    foreach (var f in ts.Description.ItemDescription.Fields)
+                    {
+                        var value = ts.FieldValueAt(tsi, f).ToString();
+                        ((NameValueView)selectedItemPanel.Children[i]).ValueText = value;
+                        i++;
+                    }
+#endif
+                }
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region eventhandler
+
+        private void chartControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (HasValidState && e.WidthChanged && (e.NewSize.Width > 0)) // if the height was changed, the panels will update themselves
+            {
+                UpdateScrollBar(tapeView.Length);
+            }
+        }
+
+        private void chartControl_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!this.IsKeyboardFocusWithin)
+            {
+                this.Focus();
+                Keyboard.Focus(this);
+            }
+        }
+
+        private void chartControl_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isDragging && HasValidState)
+            {
+                ChartPanel dropPanel = FindPanel(p =>
+                                                    {
+                                                        double yPosition = e.GetPosition(p).Y;
+                                                        return (yPosition >= 0) && (yPosition <= p.ActualHeight);
+                                                    }
+                    );
+
+                if ((dropPanel != null) && (dropPanel != draggingSource))
+                {
+                    draggingSource.Remove(new TsVisualization[] {draggingTv}, false);
+                    dropPanel.Add(draggingTv.TimeSeries, draggingTv.PainterActivator, draggingTv.DrawingAttributes, draggingTv.IsVolume);
+
+                    UpdateFrame();
+                }
+
+                RollbackDragging();
+            }
+        }
+
+        private void chartControl_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (HasValidState && KeyboardUtility.IsCtrlPressed)
+            {
+                // TODO: test with other mouse-settings
+                tapeView.Zoom((double) e.Delta/1000.0);
+            }
+        }
+
+        private void chartControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging && HasValidState)
+            {
+                Point currentPosition = e.GetPosition(this);
+                Canvas.SetLeft(draggingPath, currentPosition.X - draggingPathStart.X);
+                Canvas.SetTop(draggingPath, currentPosition.Y - draggingPathStart.Y + draggingYOffset);
+            }
+        }
+
+        private void chartControl_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (isDragging && HasValidState)
+            {
+                RollbackDragging();
+            }
+        }
+
+        private void chartControl_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (HasValidState)
+            {
+                if (isDragging)
+                {
+                    if (e.Key == Key.Escape)
+                    {
+                        RollbackDragging();
+                        e.Handled = true;
+                    }
+                }
+                else
+                {
+                    if (!IsSimple && (e.Key == Key.Delete))
+                    {
+                        Remove(SelectedTvs);
+                        e.Handled = true;
+                    }
+                }
+            }
+        }
+
+        private void chartControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (HasValidState)
+            {
+                if ((e.Key == Key.Left) || (e.Key == Key.Down))
+                {
+                    tapeScrollBar.Value = Math.Max(tapeScrollBar.Minimum, tapeScrollBar.Value - tapeScrollBar.LargeChange);
+                    e.Handled = true;
+                }
+                else if ((e.Key == Key.Right) || (e.Key == Key.Up))
+                {
+                    tapeScrollBar.Value = Math.Min(tapeScrollBar.Maximum, tapeScrollBar.Value + tapeScrollBar.LargeChange);
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void painter_Click(object sender, RoutedEventArgs e)
+        {
+            if (HasValidState)
+            {
+                ToggleButton painterButton = (ToggleButton) sender;
+                PainterActivator painterActivator = (PainterActivator) (painterButton.Tag);
+
+                SetPainter(painterActivator);
+            }
+        }
+
+        private void rootSplitter_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            if (HasValidState)
+            {
+                if (rootSplitterRow.ActualHeight > rootSplitter.Height)
+                {
+                    AddChartPanel(rootSplitterRow.ActualHeight - rootSplitter.Height);
+                }
+            }
+            rootSplitterRow.Height = new GridLength(rootSplitter.Height);
+        }
+
+        private void onChildSplitter_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            // search for panel to remove
+            childPanels.Where(cpc =>
+                              cpc.Panel.ActualHeight <= 0).ToArray().ForEach(cpc =>
+                                                                             RemovePanel(cpc));
+        }
+
+        private void tapeScrollBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!isValueChangedIgnored && HasValidState)
+            {
+                int ti = tapeView.IndexAt(e.NewValue);
+                if (ti >= 0)
+                {
+                    tapeRange.Start = ti;
+                    CalcTapeRangeEnd(tapeRange.Length, content.ActualWidth);
+
+                    UpdateFrame();
+
+                    if (selectionService != null)
+                    {
+                        selectionService.SetTapeIndex(this, ti);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region commands
+
+        private void DrawingOptionsCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = HasValidState && SelectedTvs.Any();
+        }
+
+        private void DrawingOptionsExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            DrawingDialog dlg = new DrawingDialog();
+            dlg.SelectedDrawingAttributes = SelectedTvs.First().DrawingAttributes;
+            if (dlg.ShowDialog() == true)
+            {
+                ExecuteForSelection((p, tvs) => p.SetDrawingAttributes(tvs, dlg.SelectedDrawingAttributes), true);
+                UpdateFrame();
+            }
+        }
+
+        private void ScaleCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = HasValidState && SelectedTvs.Any();
+        }
+
+        private void ScaleFillExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            SetYScaleMode(YScaleMode.Fill);
+        }
+
+        private void ScaleAbsoluteExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            SetYScaleMode(YScaleMode.Absolute);
+        }
+
+        private void ScaleFillLogarithmicExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            SetYScaleMode(YScaleMode.FillLog10);
+        }
+
+        private void ResetScaleCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = HasValidState &&
+                           (SelectedTvs.Any(tv => tv.YScalerInternal.ScaleMode != YScaleMode.Fill) || tapeView.IsZoomed);
+        }
+
+        private void ResetScaleExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            var selectedTvs = ExecuteForSelection((p, tvs) => p.SetYScaleMode(tvs, YScaleMode.Fill), true);
+
+            tapeView.ResetZoom();
+        }
+
+        private void ViewVolumeCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = HasValidState && SelectedTvs.Any() && SelectedTvs.All(tv =>
+                                                                                 tv.TimeSeries.IsVolumeSupported());
+        }
+
+        private void ViewVolumeExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            var selectedTvs = SelectedTvs;
+            List<TsVisualization> noVolumeTvs;
+            var volumeTvs = FindVolumeTvs(selectedTvs, out noVolumeTvs);
+
+            if (volumeTvs.Count > noVolumeTvs.Count)
+            {
+                // hide volumes
+                var panels = new List<ChartPanel>();
+                foreach (var tv in volumeTvs)
+                {
+                    var panel = FindPanel(p => p.Tvs.Contains(tv));
+                    if (panel != null)
+                    {
+                        panels.Add(panel);
+                    }
+                }
+
+                Remove(volumeTvs);
+
+                panels.Where(p => (p != rootChartPanel) && p.Tvs.IsEmpty()).ForEach(p =>
+                                                                                    RemovePanel(childPanels.First(cpc => cpc.Panel == p)));
+            }
+            else
+            {
+                // show volumes
+                foreach (var tv in noVolumeTvs)
+                {
+                    ViewVolume(tv);
+                }
+
+                if (noVolumeTvs.Any())
+                {
+                    UpdateViewVolumeButton(selectedTvs);
+                }
+            }
+        }
+
+        #endregion
+
+        #region fields
+
+        private List<ChartPanelControls> childPanels;
+        private Dictionary<ICursor, Marker> cursorMarkers;
+        private List<DateMarker> dateMarkers;
+        private bool isDisposed;
+        private bool isDisposing;
+        private bool isInitialized;
+
+        private bool isScaleFactorChangedIgnored;
+        private bool isValueChangedIgnored;
+        private SortedList<DateTime, bool> movingOddEvenDates;
+        private SortedList<DateTime, double> movingTimes;
+        private bool oddEvenStart;
+        private List<ToggleButton> painterButtons;
+        private ISelectionService selectionService;
+
+        private bool suppressSelectionChanged;
+        private Range tapeRange;
+        private TapeViewBase tapeView;
+        private List<Marker> timeMarkers;
+        private DateTimeMode timeMode;
+
+        #region item selection
+
+        private ChartPanel selectedItemChartPanel;
+        private int? selectedItemTapeIndex;
+        private ITeaFileT selectedItemTs;
+
+        #endregion
+
+        #region drag/drop ts
+
+        private Point draggingPathStart;
+        private ChartPanel draggingSource;
+        private TsVisualization draggingTv;
+        private double draggingYOffset;
+        private bool isDragging;
+
+        #endregion
+
+        #region styles
+
+        private static bool areStylesInitialized;
+        private static Style toolbarButtonStyle;
+        private static Style toolbarImageStyle;
+        private static Style panelSplitterStyle;
+
+        #endregion
+
+        #region constants
+
+        private static double minTimeDistance = 100;
+        private static double minXZoomDistance = 10;
+
+        #endregion
+
+        #endregion
+
+        #region embedded types
+
+        private class ChartPanelControls
+        {
+            #region properties
+
+            private ChartPanel panel;
+
+            private GridSplitter splitter;
+
+            public ChartPanel Panel
+            {
+                get { return panel; }
+            }
+
+            public GridSplitter Splitter
+            {
+                get { return splitter; }
+            }
+
+            #endregion
+
+            #region ctor
+
+            public ChartPanelControls(ChartPanel panel, GridSplitter splitter)
+            {
+                this.panel = panel;
+                this.splitter = splitter;
+            }
+
+            #endregion
+        }
+
+        #endregion
+    }
+}

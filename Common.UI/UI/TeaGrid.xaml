@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="TeaTime.UI.TeaGrid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+             xmlns:Converters="clr-namespace:TeaTime.Converters" xmlns:UI="clr-namespace:TeaTime.UI"
+             Background="Transparent" Focusable="True" FocusVisualStyle="{x:Null}" GotFocus="TeaGrid_OnGotFocus"
+             MouseWheel="TeaGrid_OnMouseWheel" x:Name="teaGrid">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Converters:NotCollapsed x:Key="NotCollapsed" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <Grid>
+        <DockPanel>
+            <DockPanel.Resources>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="FontFamily" Value="Lucida Console" />
+                    <Setter Property="FontSize" Value="13" />
+                    <Setter Property="Padding" Value="2" />
+                </Style>
+            </DockPanel.Resources>
+            <ScrollBar DockPanel.Dock="Right" x:Name="scrollbar" SmallChange="1" LargeChange="20" Focusable="True" FocusVisualStyle="{x:Null}"
+                   PreviewKeyDown="Scrollbar_OnPreviewKeyDown"/>
+            <TextBlock Text="header" DockPanel.Dock="Top" x:Name="header" Foreground="{DynamicResource {x:Static vsfx:VsBrushes.GrayTextKey}}" />
+            <Grid x:Name="textblockContainer" Focusable="False" Background="Transparent"
+              MouseLeave="TextblockContainer_OnMouseLeave" MouseLeftButtonUp="TextblockContainer_OnMouseLeftButtonUp">
+                <StackPanel x:Name="panel" DockPanel.Dock="Top" />
+            </Grid>
+        </DockPanel>
+
+        <UI:StoppedOverlay Visibility="{Binding IsStopped, ElementName=teaGrid, Converter={StaticResource NotCollapsed}}"
+              Grid.RowSpan="2"/>
+    </Grid>
+</UserControl>

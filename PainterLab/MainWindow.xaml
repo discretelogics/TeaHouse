@@ -1,0 +1,28 @@
+﻿<Window x:Class="TeaTime.PainterLab.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:chart="clr-namespace:TeaTime.Chart;assembly=DiscreteLogics.TeaTime.Common.UI"
+        Title="MainWindow" Height="768" Width="1024"
+        UseLayoutRounding="True" TextOptions.TextRenderingMode="ClearType"
+        Loaded="Window_Loaded" Closing="Window_Closing">
+    
+    <Window.CommandBindings>
+        <CommandBinding Command="Open" CanExecute="OpenCanExecute" Executed="OpenExecuted"/>
+        <CommandBinding Command="Close" CanExecute="CloseCanExecute" Executed="CloseExecuted"/>
+    </Window.CommandBindings>
+    
+    <Window.InputBindings>
+        <KeyBinding Command="Open" Gesture="CTRL+O"/>
+        <KeyBinding Command="Close" Key="Escape"/>
+    </Window.InputBindings>
+    
+    <DockPanel LastChildFill="True">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open" Command="Open"/>
+                <MenuItem Header="E_xit" Command="Close"/>
+            </MenuItem>
+        </Menu>
+        <chart:ChartControl x:Name="chart" IsSingleTs="True" />
+    </DockPanel>
+</Window>

@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Prepare" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\ExtensionPack\4.0\MSBuild.ExtensionPack.VersionNumber.targets"/>
+  <Import Project="$(MSBuildExtensionsPath)\ExtensionPack\4.0\MSBuild.ExtensionPack.tasks"/>
+
+  <PropertyGroup>
+    <MajorVersion>1</MajorVersion>
+    <MinorVersion>0</MinorVersion>
+    <Product>TeaHouse</Product>
+    <Trademark>TeaTime</Trademark>
+    <Company>DiscreteLogics</Company>
+    <Copyright>Copyright © DiscreteLogics 2013</Copyright>
+    <Url>http://www.discretelogics.com</Url>
+  </PropertyGroup>
+  
+  <Target Name="Prepare">
+    <PropertyGroup>
+      <NameValueRegex>(\s)*=(\s)*&quot;([^&quot;])*&quot;</NameValueRegex>
+    </PropertyGroup>
+    <ItemGroup>
+      <AssemblyInfos Include="$(MSBuildThisFileDirectory)**\AssemblyInfo.cs"/>
+      
+      <WixDefines Include="$(MSBuildThisFileDirectory)**\Defines.wxi"/>
+
+      <Pkgdefs Include="$(MSBuildThisFileDirectory)Shell\TeaHouseShell\TeaHouseShell.Application.pkgdef"/>
+
+      <VsxNamespace Include="VsxNamespace">
+        <Prefix>vsx</Prefix>
+        <Uri>http://schemas.microsoft.com/developer/vsx-schema/2011</Uri>
+      </VsxNamespace>
+      
+      <VsixManifests Include="$(MSBuildThisFileDirectory)TeaHouse\source.extension.vsixmanifest"/>
+      <VsixManifests Include="$(MSBuildThisFileDirectory)Shell\ShellExtensionsVSIX\source.extension.vsixmanifest"/>
+      <VsixManifests Include="$(MSBuildThisFileDirectory)Yahoo\source.extension.vsixmanifest"/>
+      <VsixManifests Include="$(MSBuildThisFileDirectory)PainterExample\source.extension.vsixmanifest"/>
+      
+      <TeaHouseVsixManifests Include="$(MSBuildThisFileDirectory)TeaHouse\source.extension.vsixmanifest"/>
+      <TeaHouseVsixManifests Include="$(MSBuildThisFileDirectory)Shell\ShellExtensionsVSIX\source.extension.vsixmanifest"/>
+    </ItemGroup>
+
+    <!-- AssemblyInfo -->
+    <MSBuild.ExtensionPack.Framework.AssemblyInfo AssemblyInfoFiles="@(AssemblyInfos)"
+                                                  AssemblyVersion="$(MajorVersion).$(MinorVersion).$(BUILD_NUMBER).1"
+                                                  AssemblyFileVersion="$(MajorVersion).$(MinorVersion).$(BUILD_NUMBER).1"
+                                                  AssemblyCompany="$(Company)"
+                                                  AssemblyConfiguration="Release"
+                                                  AssemblyCopyright="$(Copyright)"
+                                                  AssemblyTrademark="$(Trademark)"
+                                                  AssemblyProduct="$(Product)"/>
+
+    <!-- WixDefines -->
+    <MSBuild.ExtensionPack.FileSystem.File TaskAction="Replace" Files="@(WixDefines)"
+                                           RegexPattern="ProductVersion$(NameValueRegex)" 
+                                           Replacement="ProductVersion = &quot;$(MajorVersion).$(MinorVersion)&quot;"/>
+    <MSBuild.ExtensionPack.FileSystem.File TaskAction="Replace" Files="@(WixDefines)"
+                                           RegexPattern="CompanyName$(NameValueRegex)"
+                                           Replacement="CompanyName = &quot;$(Company)&quot;"/>
+    <MSBuild.ExtensionPack.FileSystem.File TaskAction="Replace" Files="@(WixDefines)"
+                                           RegexPattern="ProductDisplayName$(NameValueRegex)"
+                                           Replacement="ProductDisplayName = &quot;$(Product)&quot;"/>
+    <MSBuild.ExtensionPack.FileSystem.File TaskAction="Replace" Files="@(WixDefines)"
+                                           RegexPattern="Copyright$(NameValueRegex)"
+                                           Replacement="Copyright = &quot;$(Copyright)&quot;"/>
+    <MSBuild.ExtensionPack.FileSystem.File TaskAction="Replace" Files="@(WixDefines)"
+                                           RegexPattern="AboutUrl$(NameValueRegex)"
+                                           Replacement="AboutUrl = &quot;$(Url)&quot;"/>
+
+    <!-- VsixManifests -->
+    <MSBuild.ExtensionPack.Xml.XmlFile TaskAction="UpdateAttribute" File="%(VsixManifests.Identity)" Namespaces="@(VsxNamespace)"
+                                       XPath="/vsx:PackageManifest/vsx:Metadata/vsx:Identity" Key="Version" Value="$(MajorVersion).$(MinorVersion)"/>
+    <MSBuild.ExtensionPack.Xml.XmlFile TaskAction="UpdateAttribute" File="%(VsixManifests.Identity)" Namespaces="@(VsxNamespace)"
+                                       XPath="/vsx:PackageManifest/vsx:Metadata/vsx:Identity" Key="Publisher" Value="$(Company)"/>
+    <MSBuild.ExtensionPack.Xml.XmlFile TaskAction="UpdateElement" File="%(VsixManifests.Identity)" Namespaces="@(VsxNamespace)"
+                                       XPath="/vsx:PackageManifest/vsx:Metadata/vsx:MoreInfo" InnerText="$(Url)"/>
+    
+    <MSBuild.ExtensionPack.Xml.XmlFile TaskAction="UpdateElement" File="%(TeaHouseVsixManifests.Identity)" Namespaces="@(VsxNamespace)"
+                                       XPath="/vsx:PackageManifest/vsx:Metadata/vsx:DisplayName" InnerText="$(Product)"/>
+
+    <!-- Pkgdefs -->
+    <MSBuild.ExtensionPack.FileSystem.File TaskAction="Replace" Files="@(Pkgdefs)"
+                                           RegexPattern="&quot;ProductVersion&quot;$(NameValueRegex)"
+                                           Replacement="&quot;ProductVersion&quot;=&quot;$(MajorVersion).$(MinorVersion)&quot;"/>
+    <MSBuild.ExtensionPack.FileSystem.File TaskAction="Replace" Files="@(Pkgdefs)"
+                                           RegexPattern="&quot;AppName&quot;$(NameValueRegex)"
+                                           Replacement="&quot;AppName&quot;=&quot;$(Product)&quot;"/>
+    <MSBuild.ExtensionPack.FileSystem.File TaskAction="Replace" Files="@(Pkgdefs)"
+                                           RegexPattern="&quot;DefaultHomePage&quot;$(NameValueRegex)"
+                                           Replacement="&quot;DefaultHomePage&quot;=&quot;$(Url)&quot;"/>
+  </Target>
+</Project>

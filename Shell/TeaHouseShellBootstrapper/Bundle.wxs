@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+<?include Defines.wxi ?>
+  
+	<Bundle Name="$(var.ProductDisplayName)" Version="$(var.ProductVersion)" Manufacturer="$(var.CompanyName)" UpgradeCode="76b3b66b-276d-4fd9-b8e6-8cb73de6b161"
+			    Copyright="$(var.Copyright)"
+			    AboutUrl="$(var.AboutUrl)" 
+			    Condition="VersionNT >= v6.1"
+			    SplashScreenSourceFile="Resources\DiscreteLogics.TeaHouse.Splash.bmp"
+			    IconSourceFile="..\..\TeaHouse\Resources\DiscreteLogics.ico">
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
+      <bal:WixStandardBootstrapperApplication LogoFile="Resources\DiscreteLogics.png"
+                                              LicenseFile="..\..\TeaHouse\Resources\License.rtf" /> <!-- skip license UI with LicenseUrl=""-->
+    </BootstrapperApplicationRef>
+
+    <util:RegistrySearch Root="HKLM" Key="$(var.ProductRegKey)" Value="InstallDir" Variable="TeaHouseShellInstalled" Result="exists" />
+
+    <Chain>
+			<PackageGroupRef Id="NetFx45Web" /> <!-- Not required because it is included in VsShell -->
+			<PackageGroupRef Id="Vs11Shell"/>
+
+			<RollbackBoundary />
+
+			<MsiPackage SourceFile="..\TeaHouseShellSetup\Bin\Release\TeaHouseShellSetup.msi"
+						      Compressed="yes" Vital="yes"
+                  InstallCondition="Not TeaHouseShellInstalled" />
+  	</Chain>
+
+    <Variable Name="LaunchTarget" Value="[ProgramFilesFolder]$(var.CompanyName)\$(var.ProductName)\$(var.ProductName).exe"/>
+	</Bundle>
+</Wix>

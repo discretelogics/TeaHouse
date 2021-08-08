@@ -1,0 +1,466 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{40E827A5-2528-444A-B9D2-F5C2E3FB9422}</ProjectGuid>
+    <OutputType>library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TeaTime</RootNamespace>
+    <AssemblyName>DiscreteLogics.TeaTime.Common.UI</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <Utf8Output>true</Utf8Output>
+    <ExpressionBlendVersion>4.0.20525.0</ExpressionBlendVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>..\DiscreteLogics.ruleset</CodeAnalysisRuleSet>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\Common.UI.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\Common.UI.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LogicNP.CryptoLicensing, Version=7.0.0.0, Culture=neutral, PublicKeyToken=4a3c0a4c668b48b4">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\LogicNP.CryptoLicensing.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Shell.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 11.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0\Microsoft.VisualStudio.Shell.11.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="API\IPainter.cs" />
+    <Compile Include="API\TimeSeriesDrawing.cs" />
+    <Compile Include="License\GoodFactory.cs" />
+    <Compile Include="License\License.cs" />
+    <Compile Include="License\LicenseDialog.xaml.cs">
+      <DependentUpon>LicenseDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="License\LicenseManager.cs" />
+    <Compile Include="Chart\Painters\BuiltinBarType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Chart\Painters\HistogramPainter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Chart\Painters\LinePainter.cs" />
+    <Compile Include="Chart\Painters\PainterActivator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Chart\Painters\PainterDescription.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Chart\Painters\PainterManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Chart\Painters\PointPainter.cs" />
+    <Compile Include="Chart\Painters\SlicePainter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Chart\Settings\ChartSettings.cs" />
+    <Compile Include="API\FieldMapping.cs" />
+    <Compile Include="Chart\Settings\ItemTypeSettingsControl.xaml.cs">
+      <DependentUpon>ItemTypeSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chart\Settings\ItemTypeSettings.cs" />
+    <Compile Include="Chart\Settings\PainterMapping.cs" />
+    <Compile Include="Chart\Settings\PanelSettings.cs" />
+    <Compile Include="Chart\Settings\SettingsFactory.cs" />
+    <Compile Include="Base\Constants.cs" />
+    <Compile Include="Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Converters\IsNullOrEmpty.cs" />
+    <Compile Include="Converters\MaskFieldName.cs" />
+    <Compile Include="Converters\Default.cs" />
+    <Compile Include="Converters\DebugConverter.cs" />
+    <Compile Include="Export\Export.cs" />
+    <Compile Include="Import\Import.cs" />
+    <Compile Include="Import\CSVImportVM.cs" />
+    <Compile Include="Import\PreviewCell.cs" />
+    <Compile Include="Base\IProgressReporter.cs" />
+    <Compile Include="Base\ISelection.cs" />
+    <Compile Include="Base\ITextReporter.cs" />
+    <Compile Include="Base\MruItem.cs" />
+    <Compile Include="Export\CSVExportParameters.cs" />
+    <Compile Include="Export\CSVExportVM.cs" />
+    <Compile Include="Import\CsvFieldMapping.cs" />
+    <Compile Include="Import\CSVImportParameters.cs" />
+    <Compile Include="License\GoodBase.cs" />
+    <Compile Include="Tree\Folder.cs" />
+    <Compile Include="Tree\INode.cs" />
+    <Compile Include="Tree\TreeView.xaml.cs">
+      <DependentUpon>TreeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tree\TimeSeries.cs" />
+    <Compile Include="Tree\TreeWatcher.cs" />
+    <Compile Include="UI\BindableScrollViewer.cs" />
+    <Compile Include="UI\ClockImage.xaml.cs">
+      <DependentUpon>ClockImage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ColorPicker.cs" />
+    <Compile Include="UI\CompactPathTextBox.xaml.cs">
+      <DependentUpon>CompactPathTextBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ConfirmMessageBox.xaml.cs">
+      <DependentUpon>ConfirmMessageBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ConstantFrameControl.cs" />
+    <Compile Include="UI\DiscreteLogics.xaml.cs">
+      <DependentUpon>DiscreteLogics.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\FallbackWebBrowser.xaml.cs">
+      <DependentUpon>FallbackWebBrowser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Header.xaml.cs">
+      <DependentUpon>Header.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ImageCache.cs" />
+    <Compile Include="UI\MruComboBox.xaml.cs">
+      <DependentUpon>MruComboBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NameValueView.xaml.cs">
+      <DependentUpon>NameValueView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\StoppedOverlay.xaml.cs">
+      <DependentUpon>StoppedOverlay.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TeaGrid.xaml.cs">
+      <DependentUpon>TeaGrid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TeaTimeLogo.xaml.cs">
+      <DependentUpon>TeaTimeLogo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TextBlockExtensions.cs" />
+    <Compile Include="UI\TimeBox.xaml.cs">
+      <DependentUpon>TimeBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chart\ChartControl.xaml.cs">
+      <DependentUpon>ChartControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chart\ChartPanel.xaml.cs">
+      <DependentUpon>ChartPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chart\Core\TapeViewBase.cs" />
+    <Compile Include="Chart\Core\SimpleTapeView.cs" />
+    <Compile Include="Converters\ExceptionMessage.cs" />
+    <Compile Include="Converters\Function.cs" />
+    <Compile Include="Converters\IsNull.cs" />
+    <Compile Include="Converters\Not.cs" />
+    <Compile Include="Converters\IsNullOrWhiteSpace.cs" />
+    <Compile Include="Converters\Suffix.cs" />
+    <Compile Include="UI\TeaFileDescriptionView.xaml.cs">
+      <DependentUpon>TeaFileDescriptionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chart\Core\TapeView.cs" />
+    <Compile Include="Chart\Core\TimeMode.cs" />
+    <Compile Include="Chart\Core\TsVisualization.cs" />
+    <Compile Include="Chart\Core\YScaleMode.cs" />
+    <Compile Include="Chart\Core\YScaler.cs" />
+    <Compile Include="Chart\Core\ISelectable.cs" />
+    <Compile Include="Chart\Markers\CursorModes.cs" />
+    <Compile Include="Chart\Markers\DateMarker.xaml.cs">
+      <DependentUpon>DateMarker.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chart\Markers\ICursor.cs" />
+    <Compile Include="Chart\Markers\MarkerCross.cs" />
+    <Compile Include="Chart\Markers\Marker.cs" />
+    <Compile Include="Chart\Markers\MarkerAlignment.cs" />
+    <Compile Include="Chart\Markers\MarkerLine.cs" />
+    <Compile Include="Chart\Markers\TimeSeriesMarker.xaml.cs">
+      <DependentUpon>TimeSeriesMarker.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Chart\Markers\TimeSliceMarker.cs" />
+    <Compile Include="Chart\Painters\OhlcBarPainter.cs" />
+    <Compile Include="Chart\Painters\OhlcCandlePainter.cs" />
+    <Compile Include="API\ITapeView.cs" />
+    <Compile Include="API\ITsVisualization.cs" />
+    <Compile Include="API\IYScaler.cs" />
+    <Compile Include="API\Painter.cs" />
+    <Compile Include="Chart\YScalePanel.xaml.cs">
+      <DependentUpon>YScalePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Base\DependencyProperty.cs" />
+    <Compile Include="Converters\Collapsed.cs" />
+    <Compile Include="Base\KeyboardUtility.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <AppDesigner Include="Properties\" />
+    <Compile Include="Base\ResourcesUtility.cs" />
+    <Compile Include="Base\UIExtensions.cs" />
+    <Compile Include="JsonConverters\XamlConverter.cs" />
+    <Compile Include="Base\Util.cs" />
+    <Compile Include="UI\WebLink.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Chart\Settings\ItemTypeSettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="License\LicenseDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\ToolBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tree\TreeView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\ClockImage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\CompactPathTextBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ConfirmMessageBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\DiscreteLogics.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\FallbackWebBrowser.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Header.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\MruComboBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\NameValueView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\StoppedOverlay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\TeaGrid.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\TeaTimeLogo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\TimeBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\TimeBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Chart\ChartControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Chart\ChartPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\TeaFileDescriptionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Chart\Markers\DateMarker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Chart\Markers\TimeSeriesMarker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Chart\YScalePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TeaFiles.Net\TeaFiles\TeaFiles.csproj">
+      <Project>{1cade377-2821-480d-a0e7-34f224886af6}</Project>
+      <Name>TeaFiles</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{7114A9AA-1A18-4CDC-86D8-B600A5D3321D}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Chart\Documentation\CustomPainter.txt" />
+    <Resource Include="Chart\Documentation\PainterPerformance.txt" />
+    <Resource Include="Chart\Documentation\UserInterface.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\EquityPainter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\BandPainter.png" />
+    <Resource Include="Resources\HistogramPainter.png" />
+    <Resource Include="Resources\LinePainter.png" />
+    <Resource Include="Resources\ScaleLogarithmic.png" />
+    <Resource Include="Resources\OhlcBarPainter.png" />
+    <Resource Include="Resources\OhlcCandlePainter.png" />
+    <Resource Include="Resources\Painter.png" />
+    <Resource Include="Resources\PointPainter.png" />
+    <Resource Include="Resources\ScaleAbsolute.png" />
+    <Resource Include="Resources\ScaleRelative.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\TimeSeriesTeaFile.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\MatrixTeaFile.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ResetScale.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\OratorStd.otf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\TsOptions.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Add.png" />
+    <Resource Include="Resources\Down.png" />
+    <Resource Include="Resources\Remove.png" />
+    <Resource Include="Resources\Rename.png" />
+    <Resource Include="Resources\Up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\TeaFolder.Closed.16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\TeaFolder.Open.16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\TeaFile.16.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

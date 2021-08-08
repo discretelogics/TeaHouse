@@ -1,0 +1,13 @@
+﻿<ItemsControl x:Class="TeaTime.StartPage.RecentFilesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:TeaTime.UI;assembly=DiscreteLogics.TeaTime.Common.UI"
+             TextOptions.TextRenderingMode="ClearType"
+             Initialized="ItemsControl_Initialized_1">
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <ui:ImageButton x:Name="itemLink" Click="itemLink_Click" Content="{Binding Caption}"
+                         ImageSource="pack://application:,,,/DiscreteLogics.TeaHouse;component/Resources/TeaFile.16.png"/>
+        </DataTemplate>
+    </ItemsControl.ItemTemplate>
+</ItemsControl>

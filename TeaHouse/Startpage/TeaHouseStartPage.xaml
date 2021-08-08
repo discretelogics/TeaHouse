@@ -1,0 +1,119 @@
+﻿<Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:vs="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.11.0"
+      xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+      mc:Ignorable="d" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:converters="clr-namespace:TeaTime.Converters;assembly=DiscreteLogics.TeaTime.Common.UI"
+      xmlns:startPage="clr-namespace:TeaTime.StartPage;assembly=DiscreteLogics.TeaHouse"
+      xmlns:teaHouseCommands="clr-namespace:TeaTime.Commands;assembly=DiscreteLogics.TeaHouse"
+      xmlns:teaHouse="clr-namespace:TeaTime;assembly=DiscreteLogics.TeaHouse"
+      xmlns:ui="clr-namespace:TeaTime.UI;assembly=DiscreteLogics.TeaTime.Common.UI"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" d:DesignHeight="600" d:DesignWidth="800">
+
+    <Grid.Resources>
+        <ResourceDictionary>
+            <converters:Collapsed x:Key="Collapsed"/>
+
+            <Style x:Key="{x:Type Path}" TargetType="{x:Type Path}">
+                <Setter Property="Stroke" Value="#FF555555"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Stretch" Value="Fill"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+            </Style>
+
+            <Style x:Key="HeaderStyle" TargetType="{x:Type TextBlock}">
+                <Setter Property="Foreground" Value="#FF555555"/>
+                <Setter Property="FontSize" Value="20"/>
+            </Style>
+        </ResourceDictionary>
+    </Grid.Resources>
+
+    <Grid x:Name="LayoutRoot" Background="White">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="13"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <!-- Logo-->
+            <RowDefinition Height="Auto" />
+            <!-- Main Content Area -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <ui:TeaTimeLogo Margin="15" HorizontalAlignment="Left"/>
+
+        <!--Left Column-->
+        <Grid Width="Auto" Grid.Row="1" Margin="15,0,0,15" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <!-- Command Buttons for New Projects -->
+                <RowDefinition Height="Auto"/>
+                <!-- MRU Row -->
+                <RowDefinition Height="*"/>
+                <!--Gutter at bottom of page -->
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Command Buttons -->
+            <Grid x:Name="commandButtonsGrid" Grid.Row="0" Margin="0,15" HorizontalAlignment="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <ui:ImageButton 
+                    x:Uid="ViewTeaHouseOptions"
+                    ImageWidth="32" ImageHeight="32"
+                    Content="Configuration"
+                    Command="{x:Static teaHouseCommands:TeaHouseCommands.ViewTeaHouseOptions}"
+                    Visibility="{Binding Options.IsConfigured, Source={x:Static teaHouse:TeaHousePackage.Instance}, Converter={StaticResource Collapsed}}"
+                    ImageSource="pack://application:,,,/DiscreteLogics.TeaHouse;component/Resources/TeaHouse.Options.32.png"/>
+
+                <ui:ImageButton 
+                    x:Uid="ViewTeaHouseExplorer"
+                    ImageWidth="32" ImageHeight="32" Grid.Row="1"
+                    Content="TeaHouse Explorer"
+                    Command="{x:Static teaHouseCommands:TeaHouseCommands.ViewTeaHouseExplorer}"
+                    ImageSource="pack://application:,,,/DiscreteLogics.TeaHouse;component/Resources/TeaFolder.Open.32.png"/>
+            </Grid>
+
+
+            <!-- Recent Files Section -->
+            <Grid Grid.Row="1" HorizontalAlignment="Left" Width="Auto">
+                <Grid.RowDefinitions>
+                    <!-- Heading -->
+                    <RowDefinition Height="Auto" />
+                    <!-- MRU Container -->
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Recent Files Heading-->
+                <StackPanel Grid.Row="0" Margin="0,0,0,10" Orientation="Horizontal">
+                    <TextBlock Text="Recent Files" VerticalAlignment="Top" Style="{DynamicResource HeaderStyle}" x:Uid="RecentProjects"/>
+                    <Path VerticalAlignment="Center" Margin="6,0,0,-4" Width="Auto" Data="M0,0 L300,0"/>
+                </StackPanel>
+                <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  VerticalScrollBarVisibility="Auto">
+                    <startPage:RecentFilesView/>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Start Page Options -->
+            <StackPanel Margin="0,10,0,0" Grid.Row="2">
+                <Path VerticalAlignment="Center" Width="Auto" Data="M0,0 L1,0"/>
+                <CheckBox x:Uid="AutoClose_Option" Content="Close this page after file open" IsChecked="{Binding ClosePageOnOpenProject, Mode=TwoWay}" Margin="0,10,2,0"/>
+                <CheckBox x:Uid="ShowOnStartUp_Option" Content="Show this page on startup" IsChecked="{Binding ShowPageAtStartup, Mode=TwoWay}" Margin="0,2,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!--Center Content-->
+        <Path Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" Margin="6,15" Height="Auto" Data="M0,0 L0,1"/>
+        <ScrollViewer Grid.Column="2" Grid.RowSpan="2"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ui:FallbackWebBrowser Source="http://www.discretelogics.com/doc/teahouse/" FallbackSource="pack://application:,,,/DiscreteLogics.TeaHouse;component/StartPage/FallbackPages/TeaHouseGuidanceAndResources.htm"/>
+        </ScrollViewer>
+    </Grid>
+</Grid>

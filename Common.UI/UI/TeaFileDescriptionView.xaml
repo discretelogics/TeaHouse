@@ -1,0 +1,142 @@
+﻿<UserControl x:Class="TeaTime.TeaFileDescriptionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:Converters="clr-namespace:TeaTime.Converters"
+             xmlns:UI="clr-namespace:TeaTime.UI"
+             TextOptions.TextRenderingMode="ClearType" UseLayoutRounding="True"
+             FocusVisualStyle="{x:Null}"
+             x:Name="control">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Converters:IsNull x:Key="IsNull"/>
+            <Converters:IsNullOrEmpty x:Key="IsNullOrEmpty"/>
+            <Converters:NotCollapsed x:Key="NotCollapsed"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <!--Header-->
+        <StackPanel Orientation="Horizontal" Height="Auto" Margin="16,16,16,8">
+            <Image Height="64" Width="64">
+                <Image.Style>
+                    <Style TargetType="{x:Type Image}">
+                        <Setter Property="Source" Value="../Resources/TimeSeriesTeaFile.png"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Description.ItemDescription.EventTimeField, Converter={StaticResource IsNull}}" Value="True">
+                                <Setter Property="Source" Value="../Resources/MatrixTeaFile.png"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <StackPanel Orientation="Vertical" Margin="16,0,0,0" Height="Auto" VerticalAlignment="Center">
+                <TextBlock FontSize="32" Text="{Binding Description.ContentDescription}" />
+                <TextBlock Text="{Binding Name}" Height="Auto"/>
+            </StackPanel>
+        </StackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" FocusVisualStyle="{x:Null}">
+            <Grid Margin="0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Border BorderThickness="0,0,1,0" BorderBrush="#FF555555"  SnapsToDevicePixels="True">
+                    <Border.Style>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Description.NameValues, Converter={StaticResource IsNullOrEmpty}}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <!-- NameValues -->
+                    <StackPanel Orientation="Vertical" Margin="0,0,8,0">
+                        <ItemsControl Height="Auto" ItemsSource="{Binding Description.NameValues}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <UI:NameValueView NameText="{Binding Name}" ValueText="{Binding ValueText}"
+                                                  NameWidth="130"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!--ItemDescription-->
+                <StackPanel Orientation="Vertical" Margin="8,0,0,0" Grid.Column="1">
+                    <UI:NameValueView NameText="Items" ValueText="{Binding Count}"/>
+                    <UI:NameValueView NameText="ItemType" ValueText="{Binding Description.ItemDescription.ItemTypeName}"/>
+                    <UI:NameValueView NameText="ItemSize" ValueText="{Binding Description.ItemDescription.ItemSize}"/>
+                    <UI:NameValueView NameText="EventTime" ValueText="{Binding Description.ItemDescription.EventTimeField.Name}"/>
+                    <UI:NameValueView NameText="Timescale" ValueText="{Binding Description.Timescale}"/>
+                    <!--Fields-->
+                    <ItemsControl ItemsSource="{Binding Description.ItemDescription.Fields}" Margin="0,16,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical" Margin="0,0,8,0" Width="130">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}"/>
+                                        <Path Width="Auto" Stretch="Fill"  VerticalAlignment="Center" Data="M0,0 L 500,0" StrokeThickness="1" 
+                                                  Stroke="#FF555555" SnapsToDevicePixels="True" Margin="6,0,0,0" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <UI:NameValueView NameText="Type" ValueText="{Binding FieldType}"/>
+                                        <UI:NameValueView NameText="Offset" ValueText="{Binding Offset}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <UI:NameValueView NameText="IsTime">
+                                                <UI:NameValueView.Style>
+                                                    <Style TargetType="{x:Type UI:NameValueView}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsTime}" Value="True">
+                                                                <Setter Property="ValueText" Value=""/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </UI:NameValueView.Style>
+                                            </UI:NameValueView>
+                                            <UI:ClockImage Visibility="{Binding IsTime, Converter={StaticResource NotCollapsed}}"
+                                                               Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <UI:NameValueView NameText="IsEventTime">
+                                                <UI:NameValueView.Style>
+                                                    <Style TargetType="{x:Type UI:NameValueView}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsEventTime}" Value="True">
+                                                                <Setter Property="ValueText" Value=""/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </UI:NameValueView.Style>
+                                            </UI:NameValueView>
+                                            <UI:ClockImage Visibility="{Binding IsEventTime, Converter={StaticResource NotCollapsed}}"
+                                                               Margin="0,4,0,0" Fill="#FFBB3F" Stroke="#8F423D"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+
+        <UI:StoppedOverlay Visibility="{Binding IsStopped, ElementName=control, Converter={StaticResource NotCollapsed}}"
+              Grid.RowSpan="2"/>
+    </Grid>
+</UserControl>

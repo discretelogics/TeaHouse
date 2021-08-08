@@ -1,0 +1,14 @@
+﻿TeaHouse - Mission Statement
+
+# summary
+TeaHouse shall be the reference product to inspect and visualize TeaFiles. Its visualisation shall be perfect. It perfectly handles the simple case of opening a 7GB time series file.
+
+It comes as a VS Shell Extension and is not bound to Visual Studio. This prohibits any development like custom painter develeopment. Custom time series are therefore not always chartable but can be displayed inside the grid.
+
+# the need
+TeaFiles allow storage of time series, where each file stores a single series. A user who receives TeaFiles or creates them using some Tool and API (e.g Matlab and the Matlab-TeaFile-API) will soon want to have a quick way to inspect content of these files and to organize them, like putting them into various collections.
+
+TeaHouse provides this functionality:
+- Inspect the content of a single TeaFile, in particular
+- visualize TeaFiles on a chart.
+- Organize and manage TeaFiles in folders.

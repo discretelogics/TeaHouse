@@ -1,0 +1,25 @@
+﻿- Add TimeSeries: Drop List<ITimeSeries> on ChartPanel
+- Select TimeSeriess: Click on path, if other timeseriess were selected before they are unselected.
+					If you press CRTL while clicking on the path, the path is either added to the selection if it wasn't selected before or removed if it was selected before.
+- When moving over a timeMarker the time is also marked in each panel (unselected timemarkers in panels can be hidden optionally)
+- Move in X-Direction: Scrollbar, PreviewPanel(coming soon...)
+- Zoom in X-Direction: Ctrl + Mousewheel on ChartGroup
+- Move in Y-Direction: Mousedown + Mousemove on YScalepanel
+- Zoom in Y-Direction: Ctrl + Mousedown + Mousemove on YScalepanel
+- Create Panel: Move Horizontal-Splitter (the one above the timeMarkers)
+- Delete Panel: Move Horizontal-Splitter so that a panel has 0 pixel height (except root-panel)
+- Create Chart: Move Vertical-Splitter (the one above on right side)
+- Delete Chart: Move Vertical-Splitter so that a chart has 0 pixel width (except root-chart)
+- ChartPanelCursor: 
+	- There are two modes in which the cursors work: 
+		- Point: a single cross is displayed
+		- Region: two crosses span a rectangle to:
+				- select Timeseriess ( +Shift): alle paths that instersect with the rect will be added to the selection
+				- zoom in ( +Ctrl): zoom exactly to the positions you selected the end-point is lower and right to the start-point
+				- zoom out ( +Ctrl): zooms out in relation of selected rect and Window-Size
+				- zoom in/out is depends on each axis separately. This means you can zoom in Y but zoom out X with one rect (depends on the direction you have drawn it)
+	- Each cursor can be permanent, which means that it is still displayed when the mouse is released,
+		or not permanent which means that it is destroyed after the mouse was released
+- Delete TimeSeriess from Panel: Select => DEL
+- Move a Chart-Panel: ALT + LeftMouseButtonDown + Move
+- Set cursor in "permanent"-mode with P in panel

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+	<?define CompanyName = "DiscreteLogics" ?>
+  <?define ProductName = "TeaHouseShell" ?>
+  <?define ProductDisplayName = "TeaHouse" ?>
+	<?define ProductVersion = "1.0" ?>
+  <?define Copyright = "Copyright© 2012, DiscreteLogics" ?>
+  <?define AboutUrl = "http://www.discretelogics.com" ?>
+  
+  <?define ProductRegKey = "Software\$(var.CompanyName)\$(var.ProductName)\$(var.ProductVersion)" ?>
+</Include>

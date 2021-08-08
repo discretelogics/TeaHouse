@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+	<?define CompanyName = "DiscreteLogics" ?>
+	<?define ProductName = "TeaHouseShell" ?>
+  <?define ProductDisplayName = "TeaHouse" ?>
+	<?define ProductVersion = "1.0" ?>
+  <?define SourceFolder = "..\Release\" ?>
+  <?define SourceFolder1033 = "$(var.SourceFolder)1033\" ?>
+  <?define SourceProfilesFolder = "$(var.SourceFolder)Profiles\" ?>
+  <?define SourceExtensionsFolder = "$(var.SourceFolder)Extensions\" ?>
+  <?define SourceTeaHouseFolder = "$(var.SourceExtensionsFolder)TeaHouse\" ?>
+  <?define SourceStartPageFolder = "$(var.SourceTeaHouseFolder)StartPage\" ?>
+  
+  <?define ProductRegKey = "Software\$(var.CompanyName)\$(var.ProductName)\$(var.ProductVersion)" ?>
+  <?define DteClsidRegKey = "CLSID\{a4ced71f-6289-4b8d-9915-8051d9b06943}" ?>
+  <?define SolutionClsidRegKey = "CLSID\{b5a15e4c-84c5-4adc-9efc-07bd3f8dc34f}" ?>
+</Include>

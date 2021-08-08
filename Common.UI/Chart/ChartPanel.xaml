@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="TeaTime.Chart.ChartPanel" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+             xmlns:chart="clr-namespace:TeaTime.Chart"
+             xmlns:converters="clr-namespace:TeaTime.Converters"
+             x:Name="control">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:Not x:Key="Not" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+	<Grid x:Name="panelGrid" Focusable="True">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition x:Name="leftColumn" Width="0" />
+			<ColumnDefinition x:Name="panelColumn" />
+			<ColumnDefinition x:Name="rightColumn" Width="0" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition />
+		</Grid.RowDefinitions>
+		<DockPanel x:Name="leftDock" Grid.Row="0" Grid.Column="0" />
+        <Canvas x:Name="container" Grid.Row="0" Grid.Column="1"
+                AllowDrop="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type chart:ChartControl}}, Path=IsSingleTs, Converter={StaticResource Not}}"
+                ClipToBounds="True" SizeChanged="container_SizeChanged" DragOver="container_Drag" Drop="container_Drop"
+                PreviewMouseMove="container_PreviewMouseMove" PreviewMouseLeftButtonDown="container_PreviewMouseLeftButtonDown"
+                PreviewMouseLeftButtonUp="container_PreviewMouseLeftButtonUp" PreviewKeyDown="container_PreviewKeyDown" PreviewKeyUp="container_PreviewKeyUp"
+                MouseLeave="container_MouseLeave">
+			<Canvas.Style>
+				<Style TargetType="{x:Type Canvas}">
+					<Setter Property="Background" Value="White" />
+					<Setter Property="Focusable" Value="True" />
+					<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+				</Style>
+			</Canvas.Style>
+		</Canvas>
+		<DockPanel x:Name="rightDock" Grid.Row="0" Grid.Column="2" />
+	</Grid>
+</UserControl>

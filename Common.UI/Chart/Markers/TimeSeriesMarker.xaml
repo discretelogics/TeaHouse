@@ -1,0 +1,9 @@
+﻿<Grid x:Class="TeaTime.Chart.Markers.TimeSeriesMarker" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Height="22" Width="Auto">
+
+	<Grid.ColumnDefinitions>
+		<ColumnDefinition Width="35" />
+		<ColumnDefinition Width="Auto" />
+	</Grid.ColumnDefinitions>
+	<Path x:Name="path" Stroke="Orange" StrokeThickness="1" Data="M 5,11 l 25, 0" RenderOptions.EdgeMode="Aliased" />
+	<TextBlock x:Name="text" Margin="0,4,5,0" Grid.Column="1" />
+</Grid>

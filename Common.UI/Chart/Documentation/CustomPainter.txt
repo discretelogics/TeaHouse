@@ -1,0 +1,21 @@
+﻿Preliminary Considerations
+
+cp = Custom Painter
+
+* During development of a custom painter, the painter code must be hosted out of process to allow debugging.
+This is currently of minor interest, since we believe that painter code remains simple and debugging is not too much of concern.
+
+* Registration and Hosting
+- Painter Discovery: Type Discovery inside assmbly by base type CustomPainter (maybe later via attributes)
+                     Assembly Discovery: a painter plugin directory is specified via Settings
+
+- Painter Loading: AppDomain.Load into Process of VS (this will leak assemblies in the VS process, but only during development)
+                   Alternatively, a direct load mightbe specified, if this makes sense from performance view
+                   Shadow copy (to avoid locking and allow development of new cp assemblies)
+                   VS loads all assemblies inside the cp-directory at startup and listens for changes
+                   
+System.AddIn
+http://www.codeplex.com/clraddins/Wiki/View.aspx?title=Pipeline%20Builder&referringTitle=Home
+                   
+TeaTime.Host.AddInManager::CreateAddIn
+

@@ -1,0 +1,32 @@
+<Project Name="Discretelogics.Yahoo" ProjectFileVersion="2" UseRelativePaths="True" CheckVersionsWhileResolvingAssemblies="True" ID="{91479963-6411-40e1-80a8-335ca7161ca8}">
+  <SearchDirectories>
+    <SearchDirectory Path="C:\Program Files (x86)\Microsoft Visual Studio 11.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0" />
+  </SearchDirectories>
+  <OutputSettings OutputPath=".\bin\Release\Obfuscated" MainAssemblyPath="DiscreteLogics.Yahoo" RunAssemblyPath="" SNPath="C:\Program Files\Microsoft SDKs\Windows\v6.0A\bin\sn.exe" SignToolPath="" LicensingDLLPath="" LicensingMergeAssemblyName="" OverwriteInputFiles="False" BuildID="">
+    <AdditionalAssemblies />
+  </OutputSettings>
+  <ExceptionReporting ExceptionReportingServiceURL="" TryToContinueOnException="True" LocalReportPath=".\Yahoo_ExceptionReports" ApplicationName="" CompanyName="" ShowUI="True" EnableSaveToFileButton="True" EnableSendReportButton="True" />
+  <ObfuscationSettings RenamingScheme="0" UseOverloadedFieldNames="False" UseOverloadedMethodNames="False" HonorObfuscationAttributes="True" ExcludeSerializedTypes="True" ProcessInlineStrings="True" ForceXAMLProcessingModeExclude="False" ForceRenameParams="False" />
+  <ObfuscationRules>
+    <Rule Type="0" Target="1" Visibility="31" Pattern="wc:*YahooPackage*" BaseClassPattern="" Enabled="True" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="1" Visibility="31" Pattern="wc:TeaTime.Yahoo.Commands*" BaseClassPattern="" Enabled="True" ImmediateParentOnly="True" />
+  </ObfuscationRules>
+  <Assembly Load="true" Path=".\bin\Release\DiscreteLogics.TeaFiles.dll" XapEntryName="" KeyFilePath="" CertFilePath="" TimeStampURL="" Embed="True" AddExceptionReporting="False" PfxPassword="" PfxPasswordCert="">
+    <ObfuscationSettings EncryptStrings="True" SuppressReflector="True" ReduceMetaData="True" ObfuscationDisposition="0" FlowObfuscation="2" SuppressILDASM="True" SuppressReflection="False" CombineResources="False" EncryptResources="True" CompressResources="True" MarkAsSealed="True" EnableTamperDetection="False" EnableAntiDebugging="False" SymbolRenaming="False" HideExternalCalls="False" HideInternalCalls="False" GeneratePdbFile="True" ObfuscatePdbFileNames="True" Encrypt="True" Compress="True" MSBuild="False" ObfuscatedNamespace="A" RetainNamespace="False">
+      <Watermarks Watermark0="" Watermark1="" Watermark2="" Watermark3="" Watermark4="" Watermark5="" Watermark6="" Watermark7="" Watermark8="" Watermark9="" />
+    </ObfuscationSettings>
+  </Assembly>
+  <Assembly Load="true" Path=".\bin\Release\DiscreteLogics.TeaTime.Common.dll" XapEntryName="" KeyFilePath="" CertFilePath="" TimeStampURL="" Embed="True" AddExceptionReporting="False" PfxPassword="" PfxPasswordCert="">
+    <ObfuscationSettings EncryptStrings="True" SuppressReflector="True" ReduceMetaData="True" ObfuscationDisposition="0" FlowObfuscation="2" SuppressILDASM="True" SuppressReflection="False" CombineResources="False" EncryptResources="True" CompressResources="True" MarkAsSealed="True" EnableTamperDetection="False" EnableAntiDebugging="False" SymbolRenaming="False" HideExternalCalls="False" HideInternalCalls="False" GeneratePdbFile="True" ObfuscatePdbFileNames="True" Encrypt="True" Compress="True" MSBuild="False" ObfuscatedNamespace="A" RetainNamespace="False">
+      <Watermarks Watermark0="" Watermark1="" Watermark2="" Watermark3="" Watermark4="" Watermark5="" Watermark6="" Watermark7="" Watermark8="" Watermark9="" />
+    </ObfuscationSettings>
+  </Assembly>
+  <Assembly Load="true" Path=".\bin\Release\DiscreteLogics.Yahoo.dll" XapEntryName="" KeyFilePath="" CertFilePath="" TimeStampURL="" Embed="True" AddExceptionReporting="False" PfxPassword="" PfxPasswordCert="">
+    <ObfuscationSettings EncryptStrings="True" SuppressReflector="True" ReduceMetaData="True" ObfuscationDisposition="0" FlowObfuscation="2" SuppressILDASM="True" SuppressReflection="False" CombineResources="False" EncryptResources="True" CompressResources="True" MarkAsSealed="True" EnableTamperDetection="False" EnableAntiDebugging="False" SymbolRenaming="False" HideExternalCalls="False" HideInternalCalls="False" GeneratePdbFile="True" ObfuscatePdbFileNames="True" Encrypt="True" Compress="True" MSBuild="False" ObfuscatedNamespace="A" RetainNamespace="False">
+      <Watermarks Watermark0="" Watermark1="" Watermark2="" Watermark3="" Watermark4="" Watermark5="" Watermark6="" Watermark7="" Watermark8="" Watermark9="" />
+    </ObfuscationSettings>
+  </Assembly>
+  <WarningSuppressions />
+  <Warnings SaveWarningsToFile="" FailOnUnsuppressedWarning="False" SaveSuppressedWarnings="True" SaveUnsuppressedWarnings="True" />
+  <Filters />
+</Project>

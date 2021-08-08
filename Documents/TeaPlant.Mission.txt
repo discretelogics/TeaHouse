@@ -1,0 +1,14 @@
+﻿TeaPlant - Mission Statement
+
+From desktop research and development to distributed
+- storage of time series and results
+- offline analysis processing
+- online  analysis processing
+
+The building blocks of TeaBlend easily form a distributed storage and processing environment. Realtime Stream Analysis that run locally on a TeaBlend work station can be sent to processing nodes within the TeaPlant, distributing processing load. In the same way, storage of time series inside TeaFiles can be distributed. Number crunching tasks might be distributed among nodes in offline processing.
+
+From a development point of view, new functions are always developed local on a desktop with great debugging capabilities and are sent for remote execution later. This avoids problems as it faces classical database driven development: stored procedures only run on the server and debugging can be done via remote debugging only, which hardly ever runs as smooth as local debugging.
+
+Storage might be adorned by a schemaless database holding indexed metadata about the time series stored.
+
+Results from stream processing (online or offline) can be cached in form of hierarchical caches. Incremental updates of these results could be with processing-state management.

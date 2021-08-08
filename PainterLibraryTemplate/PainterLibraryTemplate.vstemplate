@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Painter Library</Name>
+    <Description>Painter Library to visualize TimeSeries.&#xd;&#xa;Includes an installer to deploy the Library.</Description>
+    <Icon>PainterLibraryTemplate.ico</Icon>
+    <ProjectType>CSharp</ProjectType>
+    <RequiredFrameworkVersion>4.0</RequiredFrameworkVersion>
+    <SortOrder>2</SortOrder>
+    <TemplateID>1e2ca898-345a-48ec-af07-a0b5fa7169ab</TemplateID>
+    <CreateNewFolder>true</CreateNewFolder>
+    <DefaultName>PainterLibrary</DefaultName>
+    <ProvideDefaultName>true</ProvideDefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="ProjectTemplate.csproj" ReplaceParameters="true">
+      <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true">Painter1.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true">source.extension.vsixmanifest</ProjectItem>
+      <ProjectItem ReplaceParameters="false" TargetFileName="Resources\PainterLibrary.ico">PainterLibrary.ico</ProjectItem>
+    </Project>
+    <CustomParameters>
+      <CustomParameter Name="$TeaBlendInstallDir$" Value="C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\Extensions\DiscreteLogics\TeaBlend\1.0"/>
+    </CustomParameters>
+  </TemplateContent>
+</VSTemplate>

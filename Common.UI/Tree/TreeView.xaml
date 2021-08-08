@@ -1,0 +1,43 @@
+﻿<TreeView x:Class="TeaTime.Tree.TeaHouseTreeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"             
+             xmlns:tree="clr-namespace:TeaTime.Tree"              
+             MouseDoubleClick="OnMouseDoubleClick"
+             KeyUp="OnKeyUp" BorderThickness="0"
+          >
+    <TreeView.Resources>
+        <Style TargetType="{x:Type TextBlock}" x:Key="Text">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+        </Style>
+        <Style TargetType="{x:Type Image}" x:Key="folderImage">
+            <Setter Property="Source" Value="..\Resources\TeaFolder.Closed.16.png" />            
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                    <Setter Property="Source" Value="..\Resources\TeaFolder.Open.16.png" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ItemPanel" TargetType="StackPanel">
+            <Setter Property="Margin" Value="2,0" />
+        </Style>
+        <HierarchicalDataTemplate DataType="{x:Type tree:Folder}" ItemsSource="{Binding Items}">
+            <StackPanel Orientation="Horizontal" Style="{StaticResource ItemPanel}">
+                <Image Style="{StaticResource folderImage}" Height="16" Margin="0,1" />
+                <TextBlock Text="{Binding Name}" Style="{StaticResource Text}" />
+            </StackPanel>
+        </HierarchicalDataTemplate>
+        <DataTemplate DataType="{x:Type tree:TeaFileNode}" >
+            <StackPanel Orientation="Horizontal" Style="{StaticResource ItemPanel}">
+                <Image Source="..\Resources\TeaFile.16.png" Height="16" Margin="0,1" />
+                <TextBlock Text="{Binding Name}" />
+            </StackPanel>
+        </DataTemplate>
+    </TreeView.Resources>
+    <TreeView.ItemContainerStyle>
+        <Style TargetType="{x:Type TreeViewItem}">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+        </Style>
+    </TreeView.ItemContainerStyle>
+
+</TreeView>

@@ -1,0 +1,12 @@
+﻿<nlog
+xmlns="http://www.nlog-project.org/schemas/NLog.xsd"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <targets>
+        <target name="tracer" xsi:type="OutputDebugString" layout="TTX: ${logger} ${message}" />
+        <target name="file" xsi:type="File" layout="${logger} ${message}" fileName="C:\Users\hase\Documents\TeaTime\AnalysisRuns\Current\teablend.log" />
+    </targets>
+    <rules>
+        <logger name="*" writeTo="tracer" />
+        <logger name="*" writeTo="file" />
+    </rules>
+</nlog>

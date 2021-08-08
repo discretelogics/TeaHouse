@@ -1,0 +1,285 @@
+﻿// copyright discretelogics 2012.
+
+using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using Microsoft.VisualStudio.Shell;
+
+namespace TeaTime.UI
+{
+    public partial class TeaGrid : UserControl
+    {
+        #region life
+
+        public TeaGrid()
+        {
+            InitializeComponent();
+            InitializeStyles();
+
+            selectedIndex = -1;
+            visibleRange = Range.Empty;
+            scrollbar.ValueChanged += (s, e) => UpdateVisibleRange();
+            textblockContainer.SizeChanged += (s, e) => Configure();
+        }
+        private void InitializeStyles()
+        {
+            if (!areStylesInitialized)
+            {
+                selectedHighlightBrush = ((Brush)FindResource(VsBrushes.HighlightKey)).Clone();
+                selectedBrush = selectedHighlightBrush.Clone();
+                selectedBrush.Opacity = 0.5;
+                deselectedBrush = Brushes.Transparent;
+
+                areStylesInitialized = true;
+            }
+        }
+
+        public void Initialize(ITeaFileEditor teaFileEditor)
+        {
+            this.teaFileEditor = teaFileEditor;
+        }
+
+        #endregion
+
+        #region state
+
+        private static bool areStylesInitialized;
+        private static Brush selectedBrush;
+        private static Brush selectedHighlightBrush;
+        private static Brush deselectedBrush;
+
+        private ITeaFileEditor teaFileEditor;
+
+        private IItemLines itemSource;
+        public IItemLines ItemSource
+        {
+            get { return itemSource; }
+            set
+            {
+                itemSource = value;
+                if (value != null)
+                {
+                    itemsCount = (int)itemSource.Count;
+                    indexColumnWidth = itemsCount.ToString().Length + 2;
+                    header.Text = "".Blanked(indexColumnWidth) + "  " + itemSource.GetHeader();
+                }
+                else
+                {
+                    itemsCount = 0;
+                    indexColumnWidth = 0;
+                    header.Text = "";
+                }
+                Configure();
+            }
+        }
+        private int itemsCount;
+
+        private Range visibleRange;
+        private int selectedIndex;
+        public int SelectedIndex
+        {
+            get { return selectedIndex; }
+            set
+            {
+                if (selectedIndex != value)
+                {
+                    selectedIndex = value;
+                    if (!ScrollToSelectedIndex())
+                    {
+                        UpdateVisibleRange();
+                    }
+                }
+            }
+        }
+
+        private int indexColumnWidth;
+        private TextBlock selectedTextBlock;
+
+        private UIElementCollection TextBlocks { get { return panel.Children; } }
+
+        #endregion
+
+        #region int
+
+        private void Configure()
+        {
+            if (!itemSource.IsSet() || (ActualHeight == 0))
+            {
+                TextBlocks.Clear();
+                scrollbar.Maximum = 0;
+                return;
+            }
+
+            int n = (int)Math.Floor(textblockContainer.ActualHeight / (header.ActualHeight + header.Margin.Top + header.Margin.Bottom));
+            while (TextBlocks.Count > n)
+            {
+                var textBlock = TextBlocks[TextBlocks.Count - 1];
+                textBlock.MouseEnter -= textBlock_MouseEnter;
+                textBlock.MouseLeftButtonDown -= textBlock_MouseLeftButtonDown;
+                TextBlocks.Remove(textBlock);
+            }
+            while (n > TextBlocks.Count)
+            {
+                var textBlock = new TextBlock();
+                textBlock.Background = deselectedBrush;
+                textBlock.MouseEnter += textBlock_MouseEnter;
+                textBlock.MouseLeftButtonDown += textBlock_MouseLeftButtonDown;
+                TextBlocks.Add(textBlock);
+            }
+
+            scrollbar.Maximum = itemsCount - TextBlocks.Count;
+
+            if (!ScrollToSelectedIndex())
+            {
+                UpdateVisibleRange();
+            }
+        }
+        
+        private void UpdateVisibleRange()
+        {
+            if (TextBlocks.Count > 0)
+            {
+                int start = (int) scrollbar.Value;
+                visibleRange = new Range(start, start + TextBlocks.Count - 1);
+            }
+            else
+            {
+                visibleRange = Range.Empty;
+            }
+            UpdateText();
+
+            if (!visibleRange.IsEmpty && !visibleRange.Contains(selectedIndex))
+            {
+                selectedIndex = visibleRange.EnsureContained(selectedIndex);
+                SelectedIndexUpdated();
+            }
+            SelectTextBlock();
+        }
+
+        private void UpdateText()
+        {
+            if (visibleRange.IsEmpty) return;
+
+            for (int i = visibleRange.Start; i <= visibleRange.End; i++)
+            {
+                var tb = (TextBlock)TextBlocks[i - visibleRange.Start];
+                tb.Text = (i + 1).ToString().Blanked(indexColumnWidth) + "  " + itemSource.GetLineText(i);
+            }
+        }
+
+        private bool ScrollToSelectedIndex()
+        {
+            int value = Math.Max(0, Math.Min((int) scrollbar.Maximum, selectedIndex - TextBlocks.Count + 1));
+            if (value != scrollbar.Value)
+            {
+                scrollbar.Value = value;
+                return true;
+            }
+            return false;
+        }
+
+        private void SelectTextBlock()
+        {
+            if (visibleRange.Contains(selectedIndex))
+            {
+                var textBlock = (TextBlock)TextBlocks[selectedIndex - visibleRange.Start];
+                if (textBlock != selectedTextBlock)
+                {
+                    // deselect old
+                    if (selectedTextBlock != null)
+                    {
+                        selectedTextBlock.Background = deselectedBrush;
+                    }
+
+                    // select new
+                    selectedTextBlock = textBlock;
+                    selectedTextBlock.Background = selectedBrush;
+                }
+            }
+        }
+        private void SelectAndHighlight(TextBlock textBlock)
+        {
+            selectedIndex = (int)scrollbar.Value + TextBlocks.IndexOf(textBlock);
+            SelectedIndexUpdated();
+
+            if (textBlock != selectedTextBlock)
+            {
+                if (selectedTextBlock != null)
+                {
+                    selectedTextBlock.Background = deselectedBrush;
+                }
+                selectedTextBlock = textBlock;
+            }
+            selectedTextBlock.Background = selectedHighlightBrush;
+        }
+        private void UnhighlightSelected()
+        {
+            if (selectedTextBlock != null)
+            {
+                selectedTextBlock.Background = selectedBrush;
+            }
+        }
+
+        private void SelectedIndexUpdated()
+        {
+            if (teaFileEditor != null)
+            {
+                teaFileEditor.SetTimeSeriesIndex(this, selectedIndex);
+            }
+        }
+
+        #endregion
+
+        #region eventhandler
+        private void TeaGrid_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+            scrollbar.Focus();
+            Keyboard.Focus(scrollbar);
+        }
+
+        private void TeaGrid_OnMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            scrollbar.Value = Math.Min(scrollbar.Maximum, Math.Max(scrollbar.Minimum, scrollbar.Value - e.Delta / 10.0));
+            e.Handled = true;
+        }
+
+        private void Scrollbar_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.End)
+            {
+                SelectedIndex = Math.Max(0, itemsCount - 1);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Home)
+            {
+                SelectedIndex = 0;
+                e.Handled = true;
+            }
+        }
+
+        private void textBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            SelectAndHighlight((TextBlock)sender);
+        }
+        private void textBlock_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                SelectAndHighlight((TextBlock) sender);
+            }
+        }
+
+        private void TextblockContainer_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            UnhighlightSelected();
+        }
+        private void TextblockContainer_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            UnhighlightSelected();
+        }
+        #endregion
+    }
+}

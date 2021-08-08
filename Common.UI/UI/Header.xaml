@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="TeaTime.UI.Header"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+    x:Name="headerControl" Focusable="False">
+
+    <StackPanel Orientation="Horizontal">
+        <Image x:Name="image"
+               Height="{Binding ElementName=headerControl, Path=ImageSize}" 
+               Width="{Binding ElementName=headerControl, Path=ImageSize}" 
+               Source="{Binding ElementName=headerControl, Path=ImageSource}">
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=headerControl, Path=IsSelected}" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+        <TextBlock x:Name="text" Margin="5,0,0,0" VerticalAlignment="Center" 
+                   Text="{Binding ElementName=headerControl, Path=Text}">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vsfx:VsBrushes.ToolWindowTabSelectedTextKey}}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=headerControl, Path=IsSelected}" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static vsfx:VsBrushes.ToolWindowTabTextKey}}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+    </StackPanel>
+</UserControl>

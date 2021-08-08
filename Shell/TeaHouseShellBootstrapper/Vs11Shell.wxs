@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Fragment>
+
+    <util:RegistrySearch Variable="VS11SHELLINSTALL" 
+                         Root="HKLM" Key="Software\Microsoft\DevDiv\vc\Servicing\11.0\RuntimeMinimum" Value="Install" Result="exists" />
+    
+    <PackageGroup Id="Vs11Shell">
+      <ExePackage Id="Vs11Shell"
+						      Cache="no"
+						      Compressed="yes"
+						      PerMachine="yes"
+						      Permanent="yes"
+						      Vital="yes"
+						      Name="vs_isoshell.exe"
+						      SourceFile="Resources\vs_isoshell.exe"
+                  DetectCondition="VS11SHELLINSTALL"
+						      InstallCommand="/q"
+						      RepairCommand="/q"
+						      UninstallCommand="/q">
+        <ExitCode Value="0" Behavior="success"/>
+        <ExitCode Value="1641" Behavior="forceReboot"/>
+        <ExitCode Value="3010" Behavior="forceReboot"/>
+        <ExitCode Behavior="error"/>
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+</Wix>

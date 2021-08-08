@@ -1,0 +1,130 @@
+﻿<UI:ConstantFrameControl x:Class="TeaTime.Chart.ChartControl" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                         xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0" 
+                         xmlns:Chart="clr-namespace:TeaTime.Chart"
+                         xmlns:Converters="clr-namespace:TeaTime.Converters" 
+                         xmlns:UI="clr-namespace:TeaTime.UI" 
+                         xmlns:Settings="clr-namespace:TeaTime.Chart.Settings"
+                         x:Name="chartControl" 
+                         PreviewMouseLeftButtonDown="chartControl_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="chartControl_PreviewMouseLeftButtonUp" 
+                         MouseWheel="chartControl_MouseWheel" MouseMove="chartControl_MouseMove" MouseLeave="chartControl_MouseLeave" 
+                         KeyUp="chartControl_KeyUp" KeyDown="chartControl_KeyDown" Height="Auto" Width="Auto" 
+                         Focusable="True" FocusVisualStyle="{x:Null}"
+                         UseLayoutRounding="True" TextOptions.TextRenderingMode="ClearType">
+
+    <UI:ConstantFrameControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Themes\ToolBar.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <Converters:Collapsed x:Key="Collapsed" />
+            <Converters:NotCollapsed x:Key="NotCollapsed" />
+            <Converters:Not x:Key="Not" />
+            <Converters:VisibleIfGreaterThan x:Key="VisibleIfGreaterThan"/>
+
+            <Style x:Key="PanelSplitter" TargetType="{x:Type GridSplitter}">
+                <Setter Property="Background" Value="{DynamicResource {x:Static vsfx:VsBrushes.PanelSeparatorKey}}" />
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="Height" Value="3" />
+                <Setter Property="ResizeDirection" Value="Rows" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Height" Value="1" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </UI:ConstantFrameControl.Resources>
+
+    <UI:ConstantFrameControl.CommandBindings>
+        <CommandBinding Command="{x:Static Chart:ChartControl.TsSettingsCommand}" Executed="TsSettingsExecuted" CanExecute="TsSettingsCanExecute" />
+    </UI:ConstantFrameControl.CommandBindings>
+
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <ToolBar x:Name="toolBar" Visibility="{Binding ElementName=chartGroupControl, Path=IsFixedLayout, Converter={StaticResource Collapsed}}"
+                 BorderThickness="0">
+            <ComboBox x:Name="chartSettings" Style="{StaticResource ToolBarComboBox}" Margin="2,0,0,0"
+                        ItemsSource="{Binding ChartSettings}" SelectedItem="{Binding SelectedChartSettings}"
+                        Visibility="{Binding ChartSettings.Count, Converter={StaticResource VisibleIfGreaterThan}, ConverterParameter=1, FallbackValue=Collapsed}"
+                        SelectionChanged="chartSettings_SelectionChanged" Focusable="False" />
+            <Button Command="{x:Static Chart:ChartControl.TsSettingsCommand}" CommandTarget="{Binding ElementName=chartControl}" 
+                    Style="{StaticResource ToolBarButton}" ToolTip="Options">
+                <Image Source="..\Resources\TsOptions.png" Style="{StaticResource ToolBarImage}" />
+            </Button>
+        </ToolBar>
+
+        <DockPanel LastChildFill="True" Grid.Row="1" x:Name="content">
+            <!-- Scrollbar -->
+            <ScrollBar x:Name="tapeScrollBar" Minimum="0" Maximum="0" SmallChange="0" LargeChange="0" ViewportSize="0"
+                       ValueChanged="tapeScrollBar_ValueChanged" DockPanel.Dock="Bottom" Orientation="Horizontal"
+                       Background="{DynamicResource {x:Static vsfx:VsBrushes.ScrollBarBackgroundKey}}"
+                       Visibility="{Binding ElementName=chartControl, Path=IsFixedLayout, Converter={StaticResource Collapsed}}" />
+
+            <!-- Timeline -->
+            <Canvas x:Name="timeMarkerContainer" Height="40" DockPanel.Dock="Bottom" Background="#E8E8EC" />
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" x:Name="rootSplitterRow" />
+                </Grid.RowDefinitions>
+
+                <!-- ChartPanels -->
+                <Grid x:Name="panelContainer" SizeChanged="panelContainer_SizeChanged">
+                </Grid>
+                <!-- Ts Dragging -->
+                <Canvas x:Name="draggingContainer" ClipToBounds="False">
+                    <Path x:Name="draggingPath">
+                        <Path.Style>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="Stroke" Value="#A0505050" />
+                                <Setter Property="StrokeThickness" Value="1" />
+                            </Style>
+                        </Path.Style>
+                    </Path>
+                </Canvas>
+                <!-- SelectedItem -->
+                <Canvas>
+                    <Border BorderBrush="{DynamicResource {x:Static vsfx:VsBrushes.PanelSeparatorKey}}" Background="{DynamicResource {x:Static vsfx:VsBrushes.PanelGradientKey}}" BorderThickness="1" CornerRadius="4" Height="Auto" Width="Auto" Canvas.Bottom="2" Canvas.Left="2">
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="Opacity" Value="0.6" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="1" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel x:Name="selectedItemPanel" Orientation="Vertical" Margin="2">
+                            <StackPanel.Resources>
+                                <ResourceDictionary>
+                                    <Style TargetType="{x:Type UI:NameValueView}">
+                                        <Setter Property="NameWidth" Value="50" />
+                                    </Style>
+                                </ResourceDictionary>
+                            </StackPanel.Resources>
+                        </StackPanel>
+                    </Border>
+                </Canvas>
+                <!-- ChartPanelSplitter -->
+                <GridSplitter x:Name="rootSplitter" Grid.Row="1" DragCompleted="rootSplitter_DragCompleted" IsEnabled="{Binding IsSingleTs, ElementName=chartControl, Converter={StaticResource Not}}" Style="{StaticResource PanelSplitter}" HorizontalAlignment="Stretch" />
+            </Grid>
+        </DockPanel>
+
+        <Settings:ItemTypeSettingsControl x:Name="itemTypeSettingsControl"
+                                          Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{x:Null}"/>
+
+        <UI:StoppedOverlay Visibility="{Binding IsStopped, ElementName=chartControl, Converter={StaticResource NotCollapsed}}"
+              Grid.RowSpan="2"/>
+    </Grid>
+</UI:ConstantFrameControl>

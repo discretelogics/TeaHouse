@@ -1,0 +1,148 @@
+﻿<UserControl x:Class="TeaTime.UI.CSVExportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+             xmlns:uih="clr-namespace:TeaTime.UI"
+             xmlns:Converters="clr-namespace:TeaTime.Converters;assembly=DiscreteLogics.TeaTime.Common.UI"
+             xmlns:UI="clr-namespace:TeaTime.UI;assembly=DiscreteLogics.TeaTime.Common.UI"
+             Background="{DynamicResource {x:Static vsfx:VsBrushes.ToolWindowBackgroundKey}}"
+             x:Name="control">
+
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{x:Static uih:CSVExportView.BrowseTargetFolderCommand}" Executed="BrowseTargetFolderExecuted" CanExecute="BrowseTargetFolderCanExecute"/>
+        <CommandBinding Command="{x:Static uih:CSVExportView.ExportCommand}" Executed="ExportExecuted" CanExecute="ExportCanExecute"/>
+    </UserControl.CommandBindings>
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Converters:IsNullOrWhiteSpace x:Key="IsNullOrWhiteSpace"/>
+            
+            <Style TargetType="{x:Type Border}" x:Key="{x:Type Border}">
+                <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vsfx:VsBrushes.ToolWindowBorderKey}}"/>
+            </Style>
+
+            <Style TargetType="{x:Type TextBlock}" x:Key="NameText">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static vsfx:VsBrushes.ToolWindowTextKey}}"/>
+                <Setter Property="TextAlignment" Value="Right"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="0,0,4,0"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Source & Target -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="4"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Source:" Style="{StaticResource NameText}"/>
+            <UI:CompactPathTextBox Text="{Binding Parameters.SourceFileOrFolder}" Grid.Column="1"/>
+            <TextBlock x:Name="watermark" Text="Please select an item to export in the TeaHouse Explorer" Foreground="{DynamicResource {x:Static vsfx:VsBrushes.GrayTextKey}}"
+                       VerticalAlignment="Center" Margin="4,0" Grid.Column="1"/>
+
+            <TextBlock Text="TargetFolder:" Style="{StaticResource NameText}" Grid.Row="2"/>
+            <UI:MruComboBox Text="{Binding Parameters.TargetFolder}" ItemsSource="{Binding MruTargetFolders}" Grid.Row="2" Grid.Column="1"/>
+            <Button Padding="10,0" Margin="4,0,0,0" ToolTip="Browse"
+                    Command="{x:Static uih:CSVExportView.BrowseTargetFolderCommand}"
+                    Grid.Column="2" Grid.Row="2">...</Button>
+        </Grid>
+
+        <!-- Parameters -->
+        <Border Margin="0,6" Grid.Row="1"
+                BorderThickness="0,0,0,1" BorderBrush="#ABADB3" SnapsToDevicePixels="True">
+            <ScrollViewer Padding="0,6" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="4"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="4"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="32"/>
+                        <ColumnDefinition Width="4"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Decimal Separator:" Style="{StaticResource NameText}" Margin="8,0,4,0" />
+                    <TextBox Text="{Binding Parameters.DecimalSeparator, UpdateSourceTrigger=PropertyChanged}" MaxLength="1" Grid.Column="1"/>
+
+                    <TextBlock Text="DateTime Format:" Style="{StaticResource NameText}" Grid.Column="3"/>
+                    <TextBox Text="{Binding Parameters.DateTimeFormat, UpdateSourceTrigger=PropertyChanged}" Grid.Column="4"/>
+
+                    <TextBlock Text="Delimiter(*):" Style="{StaticResource NameText}" Grid.Row="2" ToolTip="\t for tab"
+                               ToolTipService.ShowDuration="120000000"/>
+                    <TextBox Text="{Binding Parameters.Delimeter, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1"/>
+
+                    <CheckBox IsChecked="{Binding Parameters.Recursive, UpdateSourceTrigger=PropertyChanged}"
+                              Grid.Row="4" Grid.ColumnSpan="2">Recursive</CheckBox>
+                    <CheckBox IsChecked="{Binding Parameters.WriteFieldNames, UpdateSourceTrigger=PropertyChanged}"
+                              Grid.Row="6" Grid.ColumnSpan="2">Write FieldNames</CheckBox>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Preview -->
+        <UI:CompactPathTextBox Margin="0,0,0,2" Grid.Row="2" Text="{Binding PreviewFile, Mode=OneWay}">
+            <UI:CompactPathTextBox.TextBoxStyle>
+                <Style TargetType="{x:Type TextBox}">
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                </Style>
+            </UI:CompactPathTextBox.TextBoxStyle>
+        </UI:CompactPathTextBox>
+
+        <Grid Margin="0,0,0,8" Grid.Row="3">
+            <TextBox Text="{Binding Preview, Mode=OneWay}" IsReadOnly="True" MinLines="1" MaxLines="100"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <TextBox.Style>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Preview, Mode=OneWay, Converter={StaticResource IsNullOrWhiteSpace}}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="No Preview available" Foreground="{DynamicResource {x:Static vsfx:VsBrushes.GrayTextKey}}">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Preview, Mode=OneWay, Converter={StaticResource IsNullOrWhiteSpace}}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+
+        <!-- Buttons -->
+        <Button HorizontalAlignment="Right" Grid.Row="4" Padding="16,2" IsDefault="True"
+                Command="{x:Static uih:CSVExportView.ExportCommand}">Export</Button>
+    </Grid>
+</UserControl>

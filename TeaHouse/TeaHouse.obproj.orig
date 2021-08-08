@@ -1,0 +1,49 @@
+<Project Name="TeaHouse" ProjectFileVersion="2" UseRelativePaths="True" CheckVersionsWhileResolvingAssemblies="True" ID="{6b5727c4-38e6-488b-b4a6-123835bec40c}">
+  <SearchDirectories>
+    <SearchDirectory Path="C:\Program Files (x86)\Microsoft Visual Studio 11.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0" />
+  </SearchDirectories>
+  <OutputSettings OutputPath=".\bin\Release\Obfuscated" MainAssemblyPath="" RunAssemblyPath="" SNPath="" SignToolPath="" LicensingDLLPath="..\Lib\LogicNP.CryptoLicensing.dll" LicensingMergeAssemblyName="DiscreteLogics.TeaTime.Common.UI" OverwriteInputFiles="False" BuildID="">
+    <AdditionalAssemblies />
+  </OutputSettings>
+  <ExceptionReporting ExceptionReportingServiceURL="" TryToContinueOnException="True" LocalReportPath=".\TeaHouse_ExceptionReports" ApplicationName="" CompanyName="" ShowUI="True" EnableSaveToFileButton="True" EnableSendReportButton="True" />
+  <ObfuscationSettings RenamingScheme="0" UseOverloadedFieldNames="False" UseOverloadedMethodNames="False" HonorObfuscationAttributes="False" ExcludeSerializedTypes="True" ProcessInlineStrings="True" ForceXAMLProcessingModeExclude="False" ForceRenameParams="False" />
+  <ObfuscationRules>
+    <Rule Type="1" Target="1" Visibility="31" Pattern="wc:TeaTime.VSX" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="63" Visibility="31" Pattern="wc:*Event&lt;T&gt;" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="1" Visibility="31" Pattern="wc:TeaTime.Commands*" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="1" Visibility="31" Pattern="wc:TeaTime.Chart.Painters*" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="1" Visibility="31" Pattern="wc:TeaTime.UI*" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="1" Visibility="31" Pattern="wc:TeaTime.Commands*" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="1" Target="11" Visibility="31" Pattern="wc:*SelectionBase" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="1" Target="63" Visibility="31" Pattern="wc:TeaTime.Special*" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="1" Target="63" Visibility="31" Pattern="wc:TeaTime.Editors*" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="1" Target="1" Visibility="31" Pattern="wc:*Pane" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="1" Visibility="31" Pattern="wc:*TeaHousePackage" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="63" Visibility="31" Pattern="wc:*TeaHousePackage*" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="63" Visibility="31" Pattern="wc:*TeaHouseTreePane*" BaseClassPattern="" Enabled="False" ImmediateParentOnly="True" />
+    <Rule Type="0" Target="63" Visibility="31" Pattern="wc:*" BaseClassPattern="" Enabled="True" ImmediateParentOnly="True" />
+  </ObfuscationRules>
+  <Assembly Load="true" Path=".\bin\Release\DiscreteLogics.TeaFiles.dll" XapEntryName="" KeyFilePath="" CertFilePath="" TimeStampURL="" Embed="True" AddExceptionReporting="False" PfxPassword="" PfxPasswordCert="">
+    <ObfuscationSettings EncryptStrings="False" SuppressReflector="False" ReduceMetaData="False" ObfuscationDisposition="1" FlowObfuscation="2" SuppressILDASM="False" SuppressReflection="False" CombineResources="False" EncryptResources="False" CompressResources="False" MarkAsSealed="False" EnableTamperDetection="False" EnableAntiDebugging="False" SymbolRenaming="False" HideExternalCalls="False" HideInternalCalls="False" GeneratePdbFile="True" ObfuscatePdbFileNames="True" Encrypt="True" Compress="True" MSBuild="False" ObfuscatedNamespace="A" RetainNamespace="False">
+      <Watermarks Watermark0="" Watermark1="" Watermark2="" Watermark3="" Watermark4="" Watermark5="" Watermark6="" Watermark7="" Watermark8="" Watermark9="" />
+    </ObfuscationSettings>
+  </Assembly>
+  <Assembly Load="true" Path=".\bin\Release\DiscreteLogics.TeaHouse.dll" XapEntryName="" KeyFilePath="" CertFilePath="" TimeStampURL="" Embed="False" AddExceptionReporting="False" PfxPassword="" PfxPasswordCert="">
+    <ObfuscationSettings EncryptStrings="False" SuppressReflector="False" ReduceMetaData="False" ObfuscationDisposition="1" FlowObfuscation="2" SuppressILDASM="False" SuppressReflection="True" CombineResources="False" EncryptResources="False" CompressResources="False" MarkAsSealed="False" EnableTamperDetection="False" EnableAntiDebugging="False" SymbolRenaming="True" HideExternalCalls="False" HideInternalCalls="False" GeneratePdbFile="True" ObfuscatePdbFileNames="True" Encrypt="False" Compress="False" MSBuild="False" ObfuscatedNamespace="A" RetainNamespace="False">
+      <Watermarks Watermark0="" Watermark1="" Watermark2="" Watermark3="" Watermark4="" Watermark5="" Watermark6="" Watermark7="" Watermark8="" Watermark9="" />
+    </ObfuscationSettings>
+  </Assembly>
+  <Assembly Load="true" Path=".\bin\Release\DiscreteLogics.TeaTime.Common.dll" XapEntryName="" KeyFilePath="" CertFilePath="" TimeStampURL="" Embed="True" AddExceptionReporting="False" PfxPassword="" PfxPasswordCert="">
+    <ObfuscationSettings EncryptStrings="False" SuppressReflector="False" ReduceMetaData="False" ObfuscationDisposition="1" FlowObfuscation="2" SuppressILDASM="False" SuppressReflection="False" CombineResources="False" EncryptResources="False" CompressResources="False" MarkAsSealed="False" EnableTamperDetection="False" EnableAntiDebugging="False" SymbolRenaming="False" HideExternalCalls="False" HideInternalCalls="False" GeneratePdbFile="True" ObfuscatePdbFileNames="True" Encrypt="False" Compress="False" MSBuild="False" ObfuscatedNamespace="A" RetainNamespace="False">
+      <Watermarks Watermark0="" Watermark1="" Watermark2="" Watermark3="" Watermark4="" Watermark5="" Watermark6="" Watermark7="" Watermark8="" Watermark9="" />
+    </ObfuscationSettings>
+  </Assembly>
+  <Assembly Load="true" Path=".\bin\Release\DiscreteLogics.TeaTime.Common.UI.dll" XapEntryName="" KeyFilePath="" CertFilePath="" TimeStampURL="" Embed="True" AddExceptionReporting="False" PfxPassword="" PfxPasswordCert="">
+    <ObfuscationSettings EncryptStrings="False" SuppressReflector="False" ReduceMetaData="False" ObfuscationDisposition="1" FlowObfuscation="0" SuppressILDASM="False" SuppressReflection="False" CombineResources="False" EncryptResources="False" CompressResources="False" MarkAsSealed="False" EnableTamperDetection="False" EnableAntiDebugging="False" SymbolRenaming="True" HideExternalCalls="False" HideInternalCalls="False" GeneratePdbFile="True" ObfuscatePdbFileNames="True" Encrypt="True" Compress="True" MSBuild="False" ObfuscatedNamespace="A" RetainNamespace="False">
+      <Watermarks Watermark0="" Watermark1="" Watermark2="" Watermark3="" Watermark4="" Watermark5="" Watermark6="" Watermark7="" Watermark8="" Watermark9="" />
+    </ObfuscationSettings>
+  </Assembly>
+  <WarningSuppressions />
+  <Warnings SaveWarningsToFile="" FailOnUnsuppressedWarning="False" SaveSuppressedWarnings="True" SaveUnsuppressedWarnings="True" />
+  <Filters />
+</Project>

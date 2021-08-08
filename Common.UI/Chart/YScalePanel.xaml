@@ -1,0 +1,10 @@
+﻿<UserControl x:Class="TeaTime.Chart.YScalePanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0" 
+             xmlns:chart="clr-namespace:TeaTime.Chart">
+
+    <Canvas x:Name="container" Focusable="True" FocusVisualStyle="{x:Null}" ClipToBounds="True" 
+            Background="#E8E8EC"
+            PreviewKeyDown="container_PreviewKeyDown" PreviewKeyUp="container_PreviewKeyUp" 
+            PreviewMouseLeftButtonDown="container_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="container_PreviewMouseLeftButtonUp" 
+            PreviewMouseMove="container_PreviewMouseMove" MouseLeave="container_MouseLeave"/>
+</UserControl>

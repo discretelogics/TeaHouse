@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="TeaTime.UI.ClockImage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="control">
+    <Canvas>
+        <Path Stroke="{Binding Stroke, ElementName=control}" StrokeThickness="1.5" 
+              Fill="{Binding Fill, ElementName=control}"
+              StrokeEndLineCap="Round" 
+              StrokeStartLineCap="Round">
+            <Path.Data>
+                <GeometryGroup>
+                    <EllipseGeometry Center="6,6" RadiusX="6" RadiusY="6" />
+                    <LineGeometry StartPoint="6,6" EndPoint="6,2" />
+                    <LineGeometry StartPoint="6,5" EndPoint="6,2">
+                        <LineGeometry.Transform>
+                            <RotateTransform Angle="45" CenterX="6" CenterY="6" />
+                        </LineGeometry.Transform>
+                    </LineGeometry>
+                    <GeometryGroup.Transform>
+                        <TranslateTransform X="0" Y="1"  />
+                    </GeometryGroup.Transform>
+                </GeometryGroup>
+            </Path.Data>
+        </Path>
+    </Canvas>
+</UserControl>

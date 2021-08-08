@@ -1,0 +1,22 @@
+﻿<UserControl xmlns:dxca="http://schemas.devexpress.com/winfx/2008/xaml/carousel"  x:Class="TeaHouse.TestApplication.GeneratorUI"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel>
+        <Label>Filename</Label>
+        <TextBox Name="txtFileName" Text="d:/temp/live.tea" />
+        <Label>Updates per Minute</Label>
+        <TextBox Name="txtUpdatesPerMinute" Text="60" />
+        <Label>Number of Values</Label>
+        <TextBox Name="txtValueCount" Text="1000" />
+        <Label>Change number of Values and Time Range</Label>
+        <CheckBox Name="cbChangeValueAndTimeRange" />
+        <Rectangle Height="20" />
+        <Button Click="Start" Height="80">Start</Button>
+        <Button Click="Stop" Height="80">Stop</Button>
+        <Label Name="lblStatus"></Label>
+    </StackPanel>
+</UserControl>

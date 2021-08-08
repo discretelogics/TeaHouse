@@ -1,0 +1,17 @@
+Performance-Test Custom-painter against built-in slice-painter.
+Tested with OHLCV-Ts with candle-geometry. Screen was 150 slices wide.
+The execution-time was measured for the complete Draw-method.
+Both painters where measured for exactly the same slices (max and max-1).
+Both painters returned the same geometry.
+
+CustomSlicePainter ("Halo-Painter"):
+
+	- including Trace-Output:
+		6215 - 5923 Ticks = 1 Millisecond
+
+	- Trace-Output commented out:
+		5207 - 5211 Ticks = 1 Millisecond
+
+Built-In OhlcCandlePainter:
+
+		3358 - 3359 Ticks = 0 Millisecond

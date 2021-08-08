@@ -1,0 +1,13 @@
+PNG:
+1. Export Selection from CorelDraw as 24Bit png with size of TargetPixel in larger size
+2. Open with Paint.NET
+3. Delete white background (select with magic wand and 30% tolerance)
+4. Canvas Size to target size (center image)
+7. save as target file
+
+ICO:
+1. Export Selection from CorelDraw as 24Bit png with size of TargetPixel in larger size
+2. Open FxIco
+3. Import Image
+4. Set target size
+5. Save as target file

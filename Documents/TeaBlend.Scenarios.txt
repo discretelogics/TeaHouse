@@ -1,0 +1,120 @@
+﻿TeaBlend - Scenarios
+
+Preliminaries:
+The user has the usual set of financial data available, as TeaFiles and via some Data Feed.
+
+........................................................
+1. data cleansing - detect errors, transaction count
+
+#analyze serial correlation of daily transaction. detect outliers and try to associate them with data errors. how many false positives or negatives occur? can this be used as an automatic error detection process?
+
+#target: i want to select any time series from my store and see the largest amount of change in transaction counts per day. i also want to see the series of changes, that is for each day the transactions-change-metric: 
+(transaction.today / transactions.yesterday.
+when charting this metric as a series, i would like to navigate quickly to the most significant values, like the largest change, second largest change and so on.
+
+#formalized: tbd
+
+........................................................
+2. data cleansing - detect errors, prices
+
+# analyze serial correlation of prices. detect outliers and try to associate them with data errors. how many false positives or negatives occur? can this be used as an automatic error detection process?
+
+#target: for the selected ts show me the serial correlation and quickly navigate me to outliers.
+
+#formalized: tbd.
+
+........................................................
+3. data cleansing - detect errors
+
+# analyze if the previous data cleansing methods can be used for automatic error detection in some or all series in the time series store. to do so, apply analysis 1 and 2 on several time series, using gui. display distributions (sliding window). 
+
+#story - see 1
+
+#thesis: to a good extend, running data cleansing parameterized for each ts can bee automated.
+
+#target: automate parameter selection (per ts) and run all cleansing algorithms in our library access all ts.
+
+#formalized: tbd.
+
+........................................................
+4. stock splits - detect from data
+
+# analyze strong price moves to detect stock splits.
+
+#story - we might have a special feed that reports corporate actions. nevertheless we want to find out if we can detect splits automatically.
+
+#thesis: find outliers from serial correlation. measure deviance. find if price move can be explained by a factore common to splits (like 1/2). a stock split will distinguish itself from prices shocks, by having stable prices as soon as the split is considered.
+
+#target: apply this to a time series that had stock splits. apply this to all stock series.
+
+#formalized: tbd.
+
+........................................................
+5. alpha generating algorithm "arya"
+
+# Analyze the equity development of a trading signal that is based on seasonality according to algorithm "arya".
+# Analyze dependency of return on day of month / week / year.
+# Analyze returns at end of month / quarter interval
+# Analyze several performance metrics, such as sharpe, sortino, equity, equity/max drawdown ratio
+# Analyze distribution of  returns if held for interval of n days.
+
+#formalized:
+
+// compute signal, 
+
+........................................................
+6. Optimal trading signal
+
+# Analyze a price series and generate optimal signals that can be used to further analyze features that correlate with this signal.
+
+........................................................
+7. Analze strategy performance
+
+# Analyze equity history of any algorithmic strategy, displaying sharpe, sortino, drawdown, return distribution
+
+........................................................
+8. Portfolio Report
+
+changed to portfolio equity based on portfolio signals.
+// # Given transactions and prices, perpare a full report portfolio in pdf at the end of each period.
+
+........................................................
+9. Pair trading
+
+# Analyze combinations of price series and list good pairs for pair trading.
+
+........................................................
+10. Display Gold prices with an EMA
+
+# Analyze EMA on prices and visualize both series.
+
+........................................................
+11. Analyze equity series if every month some amount is invested into a portfolio.
+
+# Each month I add 400$ to my investment.
+
+........................................................
+12. Market Breath Analysis.
+
+# Analyze AD (advancing / declining issues) indicator on a set of price series.
+
+........................................................
+13. Market Breath Analysis, Collections
+
+# Define collection of time series, its components and weights change.
+# Compute an index series on the components.
+
+........................................................
+14. Aggregation of prices for visualisation
+
+# Bar Aggregation
+
+........................................................
+15. Trade future contracts avoiding continuous futures
+
+# define chain of contracts
+# formulate selector
+# create future trader (who rolls over contracts)
+
+........................................................
+16. SimTrader

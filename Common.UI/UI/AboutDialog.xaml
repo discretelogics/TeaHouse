@@ -1,0 +1,77 @@
+﻿<Window x:Class="TeaTime.Special.AboutDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:UI="clr-namespace:TeaTime.UI"
+        xmlns:Converters="clr-namespace:TeaTime.Converters" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" Topmost="True"
+        Width="640" Height="480" Title="About TeaHouse" ResizeMode="NoResize" Background="#F0F0F0" WindowStyle="ToolWindow">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\Themes\ToolBar.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Converters:Collapsed x:Key="Collapsed" />
+            <Converters:NotCollapsed x:Key="NotCollapsed" />
+
+            <Style x:Key="{x:Type Button}" TargetType="{x:Type Button}">
+                <Setter Property="Width" Value="100"/>
+                <Setter Property="Height" Value="23"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <UI:TeaTimeLogo Margin="8" HorizontalAlignment="Left"/>
+            <StackPanel Margin="8" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1">
+                <TextBlock Text="Licensed to:"/>
+                <TextBlock Text="{Binding Licensee}"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Margin="8" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                <TextBlock x:Name="product"/>
+                <TextBlock x:Name="version"/>
+                <TextBlock x:Name="copyright"/>
+            </StackPanel>
+
+            <TextBlock Text="License Key:" Grid.Row="1" Margin="0,8,0,4"/>
+            <TextBox Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+            <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="2" VerticalAlignment="Top" Margin="4,0,0,0">
+                <Button Click="PurchaseClick">Purchase</Button>
+                <Button Click="RemoveClick" Margin="0,4">Remove</Button>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,4">
+                <Image Source="..\Resources\Valid.png" Style="{StaticResource ToolBarImage}" Visibility="{Binding IsValid, Converter={StaticResource NotCollapsed}}"/>
+                <Image Source="..\Resources\Invalid.png" Style="{StaticResource ToolBarImage}" Visibility="{Binding IsValid, Converter={StaticResource Collapsed}}"/>
+                <TextBlock Margin="4,0,0,0" Text="{Binding Message}" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Button Grid.Row="4" Click="OkClick" HorizontalAlignment="Right" IsDefault="True" IsEnabled="{Binding CanStore}">OK</Button>
+            <Button Grid.Column="1" Grid.Row="4" Margin="4,0,0,0" Click="CancelClick" IsCancel="True">Cancel</Button>
+        </Grid>
+    </Grid>
+</Window>

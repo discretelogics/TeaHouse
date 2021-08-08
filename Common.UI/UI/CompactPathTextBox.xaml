@@ -1,0 +1,7 @@
+﻿<UserControl x:Class="TeaTime.UI.CompactPathTextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Name="control">
+    <TextBox x:Name="textBox" IsEnabled="False" SizeChanged="textBox_SizeChanged_1" Style="{Binding TextBoxStyle, ElementName=control}"/>
+</UserControl>

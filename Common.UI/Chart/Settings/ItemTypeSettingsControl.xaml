@@ -1,0 +1,329 @@
+﻿<Grid x:Class="TeaTime.Chart.Settings.ItemTypeSettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+             xmlns:Converters="clr-namespace:TeaTime.Converters" 
+             xmlns:Settings="clr-namespace:TeaTime.Chart.Settings"
+             xmlns:ui="clr-namespace:TeaTime.UI"
+             x:Name="control"
+             Background="#AAE8E8EC" Visibility="Collapsed"
+             SnapsToDevicePixels="True"
+             Focusable="True" FocusVisualStyle="{x:Null}">
+    <Grid.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\..\Themes\ToolBar.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Converters:IsNotNull x:Key="IsNotNull"/>
+            <Converters:Default x:Key="Default"/>
+            <Converters:MaskFieldName x:Key="MaskFieldName"/>
+        </ResourceDictionary>
+    </Grid.Resources>
+
+    <Grid.CommandBindings>
+        <CommandBinding Command="{x:Static Settings:ItemTypeSettingsControl.AddPanelSettingsCommand}" Executed="AddPanelSettingsExecuted" CanExecute="AddPanelSettingsCanExecute" />
+
+        <CommandBinding Command="{x:Static Settings:ItemTypeSettingsControl.MovePanelSettingsUpCommand}" Executed="MovePanelSettingsUpExecuted" CanExecute="MovePanelSettingsUpCanExecute" />
+        <CommandBinding Command="{x:Static Settings:ItemTypeSettingsControl.MovePanelSettingsDownCommand}" Executed="MovePanelSettingsDownExecuted" CanExecute="MovePanelSettingsDownCanExecute" />
+
+        <CommandBinding Command="{x:Static Settings:ItemTypeSettingsControl.RemovePanelSettingsCommand}" Executed="RemovePanelSettingsExecuted" CanExecute="UpdatePanelSettingsCanExecute" />
+
+        <CommandBinding Command="{x:Static Settings:ItemTypeSettingsControl.AddPainterMappingCommand}" Executed="AddPainterMappingExecuted" CanExecute="UpdatePanelSettingsCanExecute" />
+        <CommandBinding Command="{x:Static Settings:ItemTypeSettingsControl.RemovePainterMappingCommand}" Executed="RemovePainterMappingExecuted" CanExecute="RemovePainterMappingCanExecute" />
+
+        <CommandBinding Command="{x:Static Settings:ItemTypeSettingsControl.MovePainterMappingUpCommand}" Executed="MovePainterMappingUpExecuted" CanExecute="MovePainterMappingUpCanExecute" />
+        <CommandBinding Command="{x:Static Settings:ItemTypeSettingsControl.MovePainterMappingDownCommand}" Executed="MovePainterMappingDownExecuted" CanExecute="MovePainterMappingDownCanExecute" />
+    </Grid.CommandBindings>
+
+
+    <Border BorderBrush="{DynamicResource {x:Static vsfx:VsBrushes.CommandBarMenuBorderKey}}" BorderThickness="1"
+            HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Grid Width="640" Height="480" Background="#E8E8EC">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="190"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.RowSpan="1" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource {x:Static vsfx:VsBrushes.CommandBarMenuBorderKey}}">
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"
+                           x:Name="title" TextTrimming="CharacterEllipsis">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="270"/>
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </Border>
+
+                <!--panelSettings-->
+                <Grid Grid.Column="1" Background="White">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <ListBox x:Name="panelSettings" ItemsSource="{Binding SelectedChartSettings.PanelSettings}" SelectedItem="{Binding SelectedChartSettings.SelectedPanelSettings}"
+                         SelectionChanged="PanelSettings_SelectionChanged" Height="Auto" Background="Transparent">
+                        <ListBox.Style>
+                            <Style TargetType="{x:Type ListBox}">
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBox">
+                                            <ItemsPresenter SnapsToDevicePixels="True" />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Resources>
+                                    <Style x:Key="{x:Type ListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border Name="Border" BorderThickness="0,0,0,3" Padding="4" SnapsToDevicePixels="true" BorderBrush="#EFEFF2">
+                                                        <ContentPresenter />
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="true">
+                                                            <Setter TargetName="Border" Property="Background" Value="#3F3399FF"/>
+                                                            <Setter TargetName="Border" Property="BorderBrush" Value="#7F3399FF"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsSelected" Value="true">
+                                                            <Setter TargetName="Border" Property="Background" Value="#7F3399FF"/>
+                                                            <Setter TargetName="Border" Property="BorderBrush" Value="#FF3399FF"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Style.Resources>
+                            </Style>
+                        </ListBox.Style>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,4" HorizontalAlignment="Center">
+                        <ui:ImageButton VerticalAlignment="Center"
+                                Command="{x:Static Settings:ItemTypeSettingsControl.AddPanelSettingsCommand}" CommandTarget="{Binding ElementName=control}"
+                                Content="Add Panel" ImageWidth="0" ImageHeight="0"/>
+                        <TextBlock Text="/" Margin="4,0,0,0" VerticalAlignment="Center" />
+                        <ui:ImageButton VerticalAlignment="Center"
+                                Command="{x:Static Settings:ItemTypeSettingsControl.RemovePanelSettingsCommand}" CommandTarget="{Binding ElementName=control}"
+                                Content="Remove Panel" ImageWidth="0" ImageHeight="0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!--panel-->
+                <Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource {x:Static vsfx:VsBrushes.CommandBarMenuBorderKey}}"
+                    Grid.Column="2" Background="White">
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="{x:Type Grid}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedChartSettings.SelectedPanelSettings, Converter={StaticResource IsNotNull}}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <ToolBar>
+                            <Button Command="{x:Static Settings:ItemTypeSettingsControl.MovePanelSettingsUpCommand}" CommandTarget="{Binding ElementName=control}" 
+                                Style="{StaticResource ToolBarButton}" ToolTip="Move Panel Up">
+                                <Image Source="..\..\Resources\Up.png" Style="{StaticResource ToolBarImage}" />
+                            </Button>
+                            <Button Command="{x:Static Settings:ItemTypeSettingsControl.MovePanelSettingsDownCommand}" CommandTarget="{Binding ElementName=control}"
+                                Style="{StaticResource ToolBarButton}" ToolTip="Move Panel Down">
+                                <Image Source="..\..\Resources\Down.png" Style="{StaticResource ToolBarImage}" />
+                            </Button>
+
+                            <Separator Style="{StaticResource ToolBarSeparator}"/>
+
+                            <ui:ColorPicker x:Name="color" SelectedColorChanged="Color_SelectedColorChanged" ToolTip="Color"/>
+
+                            <Separator Style="{StaticResource ToolBarSeparator}"/>
+
+                            <TextBlock Text="Scale" Style="{StaticResource ToolBarTextBlock}"/>
+                            <ComboBox Style="{StaticResource ToolBarComboBox}" Width="90"
+                                      SelectedItem="{Binding SelectedChartSettings.SelectedPanelSettings.YScaleMode}"
+                                      ItemsSource="{Binding YScaleModes, ElementName=control}"/>
+
+                            <Separator Style="{StaticResource ToolBarSeparator}"/>
+
+                            <TextBlock Text="Panel Name" Style="{StaticResource ToolBarTextBlock}"/>
+                            <TextBox x:Name="panelName" Text="{Binding SelectedChartSettings.SelectedPanelSettings.Name, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource ToolBarTextBox}"/>
+                        </ToolBar>
+
+                        <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Grid.Row="1" Focusable="True">
+                            <StackPanel Orientation="Vertical">
+                                <ListBox x:Name="painterMappings"
+                                     ItemsSource="{Binding SelectedChartSettings.SelectedPanelSettings.Painters}"
+                                     SelectedItem="{Binding SelectedChartSettings.SelectedPanelSettings.SelectedPainter}"
+                                     SelectionChanged="PainterMappings_OnSelectionChanged" Background="Transparent">
+                                    <ListBox.Style>
+                                        <Style TargetType="{x:Type ListBox}">
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                            <Setter Property="Focusable" Value="False"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBox">
+                                                        <ItemsPresenter SnapsToDevicePixels="True" />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Resources>
+                                                <Style x:Key="{x:Type ListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="ListBoxItem">
+                                                                <Border Name="Border" BorderThickness="1" Padding="4" SnapsToDevicePixels="true">
+                                                                    <ContentPresenter />
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="true">
+                                                                        <Setter TargetName="Border" Property="Background" Value="#3F3399FF"/>
+                                                                        <Setter TargetName="Border" Property="BorderBrush" Value="#7F3399FF"/>
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsSelected" Value="true">
+                                                                        <Setter TargetName="Border" Property="Background" Value="#7F3399FF"/>
+                                                                        <Setter TargetName="Border" Property="BorderBrush" Value="#FF3399FF"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Style.Resources>
+                                        </Style>
+                                    </ListBox.Style>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Image Source="{Binding Image}" Style="{StaticResource ToolBarImage}"
+                                               ToolTip="{Binding ToolTip}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,4" HorizontalAlignment="Center">
+                                    <ui:ImageButton VerticalAlignment="Center"
+                                                Command="{x:Static Settings:ItemTypeSettingsControl.AddPainterMappingCommand}" CommandTarget="{Binding ElementName=control}"
+                                                Content="Add Painter" ImageWidth="0" ImageHeight="0"/>
+                                    <TextBlock Text="/" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                    <ui:ImageButton VerticalAlignment="Center"
+                                                Command="{x:Static Settings:ItemTypeSettingsControl.RemovePainterMappingCommand}" CommandTarget="{Binding ElementName=control}"
+                                                Content="Remove Painter" ImageWidth="0" ImageHeight="0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- PainterMapping -->
+                        <ToolBar Grid.Row="2" BorderThickness="0,1">
+                            <ToolBar.Style>
+                                <Style TargetType="{x:Type ToolBar}" BasedOn="{StaticResource {x:Type ToolBar}}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedChartSettings.SelectedPanelSettings.SelectedPainter, Converter={StaticResource IsNotNull}}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToolBar.Style>
+                            <Button Command="{x:Static Settings:ItemTypeSettingsControl.MovePainterMappingUpCommand}" CommandTarget="{Binding ElementName=control}" 
+                                Style="{StaticResource ToolBarButton}" ToolTip="Move Painter Up">
+                                <Image Source="..\..\Resources\Up.png" Style="{StaticResource ToolBarImage}" />
+                            </Button>
+                            <Button Command="{x:Static Settings:ItemTypeSettingsControl.MovePainterMappingDownCommand}" CommandTarget="{Binding ElementName=control}"
+                                Style="{StaticResource ToolBarButton}" ToolTip="Move Painter Down">
+                                <Image Source="..\..\Resources\Down.png" Style="{StaticResource ToolBarImage}" />
+                            </Button>
+
+                            <Separator Style="{StaticResource ToolBarSeparator}"/>
+
+                            <TextBlock Text="Painter" Style="{StaticResource ToolBarTextBlock}"/>
+                            <ComboBox x:Name="painter" SelectionChanged="Painter_OnSelectionChanged"
+                                  Style="{StaticResource ToolBarComboBox}" Width="120"
+                                  ItemsSource="{Binding RegisteredPainters, ElementName=control}"/>
+
+                            <Separator Style="{StaticResource ToolBarSeparator}"/>
+
+                            <TextBlock Text="Painter Name" Style="{StaticResource ToolBarTextBlock}"/>
+                            <TextBox x:Name="painterName" Text="{Binding SelectedChartSettings.SelectedPanelSettings.SelectedPainter.Name, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ToolBarTextBox}"/>
+
+                        </ToolBar>
+
+                        <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Grid.Row="3" Focusable="True">
+                            <ItemsControl Background="Transparent" Margin="0,2"
+                                      BorderBrush="{DynamicResource {x:Static vsfx:VsBrushes.CommandBarMenuBorderKey}}"
+                                      ItemsSource="{Binding SelectedChartSettings.SelectedPanelSettings.SelectedPainter.FieldMappings}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="5,1,5,0">
+                                            <TextBlock MinWidth="80" VerticalAlignment="Center">
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource MaskFieldName}">
+                                                        <Binding Path="AccessorItemFieldName" />
+                                                        <Binding Path="SelectedItem.Painter.ItemType" ElementName="painter"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                            <ComboBox SelectedItem="{Binding FileItemFieldName}" ItemsSource="{Binding AvailableFileItemFields, ElementName=control}" 
+                                                    Margin="2,0,0,0" MinWidth="100">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock>
+                                                            <TextBlock.Text>
+                                                                <MultiBinding Converter="{StaticResource MaskFieldName}">
+                                                                    <Binding />
+                                                                    <Binding Path="DataContext.TsItemType" ElementName="control"/>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!--buttons-->
+                <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource {x:Static vsfx:VsBrushes.CommandBarMenuBorderKey}}"
+                    Grid.Row="1" Grid.ColumnSpan="3">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Width="Auto" Margin="4,2">
+                        <TextBlock x:Name="errorMessage" Visibility="Collapsed" TextTrimming="CharacterEllipsis" Margin="5" Foreground="Red"/>
+                        <Button x:Name="ok" Click="Ok_Click" IsDefault="True" Width="80">Ok</Button>
+                        <Button x:Name="cancel" Click="Cancel_Click" IsCancel="True" Width="80" Margin="4,0,0,0">Cancel</Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Border>
+</Grid>

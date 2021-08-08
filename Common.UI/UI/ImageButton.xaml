@@ -1,0 +1,42 @@
+﻿<Button x:Class="TeaTime.UI.ImageButton"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vsfx="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+        x:Name="control">
+    <Button.Template>
+        <ControlTemplate TargetType="{x:Type Button}">
+            <Grid Background="Transparent" Cursor="Hand" x:Name="container">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image Margin="4,2" Width="{Binding ImageWidth, ElementName=control}" Height="{Binding ImageHeight, ElementName=control}" Source="{Binding ImageSource, ElementName=control}"
+                                       Grid.RowSpan="2" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Content, ElementName=control}" Grid.Column="1" Margin="0,0,4,0"
+                                            Foreground="Black" 
+                                            HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                            x:Name="caption"/>
+                <Path SnapsToDevicePixels="True" Data="M 0.0,0.0 L 1,0" StrokeThickness="2" Stretch="Fill" Stroke="Black" x:Name="line"
+                                      Visibility="Hidden" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Foreground" TargetName="caption" Value="#FF555555"/>
+                    <Setter Property="Stroke" TargetName="line" Value="#FF555555"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Visibility" TargetName="line" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" TargetName="caption" Value="{DynamicResource {x:Static vsfx:VsBrushes.GrayTextKey}}"/>
+                    <Setter Property="Stroke" TargetName="line" Value="Transparent"/>
+                    <Setter Property="Cursor" TargetName="container" Value="Arrow"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Button.Template>
+</Button>

@@ -1,0 +1,15 @@
+﻿TeaBlend - Mission Statement
+
+# summary
+TeaBlend is the flag ship product of the TeaTime Product Line. It is the research and development platform that unifies analysis of historical events (time series) and stream processing.
+
+TeaBlend's distinguishing features are
+- programmming model that unifies historical analysis and stream processing by simulation
+- programmming model that operates on ticks instead of prepared evenly time-spaced series and matrices
+- high performance
+- data visualisation coding goes hand in hand with model research
+- openness - results are stored in files that are accessible from every program
+- best debugging experience (visualizers)
+
+less important features
+- visual algorithm design (simple extensions inside the code editor or visual dsl)

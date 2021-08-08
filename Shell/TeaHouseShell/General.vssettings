@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<UserSettings>
+  <ApplicationIdentity version="11.0"/>
+  <ToolsOptions/>
+  <Category name="Environment_Group" RegisteredName="Environment_Group">
+    <Category name="Environment_CommandBars" Category="{B9D9C123-B500-4202-B887-57C829CBD08F}" Package="{DA9FB551-C724-11d0-AE1F-00A0C90FFFC3}" RegisteredName="Environment_CommandBars" PackageName="Visual Studio Environment Package">
+      <CommandBars Version="05072811">
+        <DefaultCustomizations/>
+        <UserCustomizations>
+          <modify_toolbar Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000001" Visibility="hide" FullScreen="hide" Dock="top" Row="1" FloatRectangle="0,0,826,26" DockRectangle="0,0,826,26"/>
+          <modify_toolbar Menu="{5D4C0442-C0A2-4BE8-9B4D-AB1C28450942}:00001000" Visibility="auto" FullScreen="hide" Dock="top" Row="1" FloatRectangle="0,0,162,26" DockRectangle="2,0,162,26"/>
+          <modify_toolbar Menu="{74D21312-2AEE-11D1-8BFB-00A0C90F26F7}:00000601" Visibility="auto" FullScreen="hide" Dock="top" Row="1" FloatRectangle="0,0,457,26" DockRectangle="1,0,457,26"/>
+          <remove Cmd="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000081" CmdPri="01000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000101" GroupPri="01000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000000" IsPartialRemoval="false"/>
+          <remove Cmd="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000083" CmdPri="03000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000102" GroupPri="03000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000000" IsPartialRemoval="false"/>
+          <remove Cmd="{C9DD4A58-47FB-11D2-83E7-00C04F9902C1}:00000401" CmdPri="03000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000103" GroupPri="05000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000000" IsPartialRemoval="false"/>
+          <remove Cmd="{4C87B692-1202-46AA-B64C-EF01FAEC53DA}:00000200" CmdPri="00400000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000104" GroupPri="07000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000000" IsPartialRemoval="false"/>
+          <remove Cmd="{D309F791-903F-11D0-9EFC-00A0C911004F}:0000008a" CmdPri="02000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000104" GroupPri="07000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000000" IsPartialRemoval="false"/>
+          <remove Cmd="{54869924-25F5-4878-A9C9-1C7198D99A8A}:00000105" CmdPri="02000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000104" GroupPri="07000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000000" IsPartialRemoval="false"/>
+          <remove Cmd="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000306" CmdPri="04000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000132" GroupPri="09000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000082" IsPartialRemoval="false"/>
+          <remove Cmd="{4A79114A-19E4-11D3-B86B-00C04F79F802}:00000108" CmdPri="05000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:0000016a" GroupPri="05000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000088" IsPartialRemoval="false"/>
+          <modify Cmd="{D63DB1F0-404E-4B21-9648-CA8D99245EC3}:00000008" CmdPri="12000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000132" GroupPri="09000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000082" Icon="{9CD93C42-CEEF-45AB-B1B5-6040880C9543}:0000008e" BeginGroup="true"/>
+          <modify Cmd="{D63DB1F0-404E-4B21-9648-CA8D99245EC3}:00000008" CmdPri="12000000" Group="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000132" GroupPri="09000000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000082" Icon="{9CD93C42-CEEF-45AB-B1B5-6040880C9543}:0000008e" BeginGroup="true"/>
+          <modify Cmd="{217D584C-BAB2-4980-B870-0F8D8D5FB912}:00000102" CmdPri="01020000" Group="{217D584C-BAB2-4980-B870-0F8D8D5FB912}:00000101" GroupPri="ffff0000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000088" BeginGroup="false"/>
+          <modify Cmd="{217D584C-BAB2-4980-B870-0F8D8D5FB912}:00000102" CmdPri="01020000" Group="{217D584C-BAB2-4980-B870-0F8D8D5FB912}:00000101" GroupPri="ffff0000" Menu="{D309F791-903F-11D0-9EFC-00A0C911004F}:00000088" BeginGroup="false"/>
+        </UserCustomizations>
+      </CommandBars>
+      <PropertyValue name="ShowLargeButtons">false</PropertyValue>
+      <PropertyValue name="ShowScreenTips">true</PropertyValue>
+      <PropertyValue name="ShowScreenTipShortcutKeys">false</PropertyValue>
+    </Category>
+  </Category>
+</UserSettings>

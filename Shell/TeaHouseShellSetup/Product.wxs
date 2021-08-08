@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Defines.wxi ?>
+
+  <Product Id="5D8F1348-B85C-45B4-90CC-904AF96198F8" Name="$(var.ProductDisplayName)"
+			 Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.CompanyName)" UpgradeCode="742ea30d-6be4-484d-8ad6-07f8d8fafed2">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+    
+    <MajorUpgrade DowngradeErrorMessage="A newer version of TeaHouse is already installed." />
+    <MediaTemplate />
+
+    <Feature Id="ProductFeature" Title="$(var.ProductDisplayName)" Level="1">
+      <ComponentRef Id="InstallComponent" />
+      <ComponentRef Id="Component1033" />
+      <ComponentRef Id="ProfilesComponent"/>
+      <ComponentRef Id="TeaHouseComponent" />
+      <ComponentRef Id="StartPageComponent" />
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="CompanyFolder" Name="$(var.CompanyName)">
+          <Directory Id="INSTALLFOLDER" Name="$(var.ProductName)">
+            <Directory Id="ExtensionsFolder" Name="Extensions">
+              <Directory Id="TeaHouseFolder" Name="TeaHouse">
+                <Directory Id="StartPageFolder" Name="StartPage" />
+              </Directory>
+            </Directory>
+            <Directory Id="Folder1033" Name="1033" />
+            <Directory Id="ProfilesFolder" Name="Profiles" />
+          </Directory>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="$(var.ProductName)"/>
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="InstallComponent" Guid="{90FF0F7A-5046-4C2B-8644-6395DD00FBA1}">
+        <File Id="DebuggerProxy.dll" Source="$(var.SourceFolder)DebuggerProxy.dll" DiskId="1"/>
+        <File Id="DebuggerProxy.dll.manifest" Source="$(var.SourceFolder)DebuggerProxy.dll.manifest" DiskId="1"/>
+        <File Id="DiscreteLogics.TeaHouse.Splash.bmp" Source="$(var.SourceFolder)DiscreteLogics.TeaHouse.Splash.bmp" DiskId="1"/>
+        <File Id="$(var.ProductName).exe" Source="$(var.SourceFolder)$(var.ProductName).exe" DiskId="1"/>
+        <File Id="$(var.ProductName).exe.config" Source="$(var.SourceFolder)$(var.ProductName).exe.config" DiskId="1"/>
+        <File Id="$(var.ProductName).pkgdef" Source="$(var.SourceFolder)$(var.ProductName).pkgdef" DiskId="1"/>
+        <File Id="$(var.ProductName).pkgundef" Source="$(var.SourceFolder)$(var.ProductName).pkgundef" DiskId="1"/>
+        <File Id="TeaFile.ico" Source="..\..\TeaHouse\Resources\TeaFile.ico" DiskId="1"/>
+
+        <!-- ProductRegistration -->
+        <RegistryKey Root="HKLM" Key="$(var.ProductRegKey)">
+          <RegistryValue Type="string" Name="InstallDir" Value="[INSTALLFOLDER]"/>
+          <RegistryValue Type="integer" Name="Installed" Value="1"/>
+        </RegistryKey>
+
+        <!-- TeaHouseShell.reg -->
+        <RegistryKey Root="HKCR" Key="$(var.DteClsidRegKey)">
+          <RegistryValue Type="string" Value="$(var.ProductName) DTE Object" />
+        </RegistryKey>        
+        <RegistryKey Root="HKCR" Key="$(var.DteClsidRegKey)\LocalServer32">
+          <RegistryValue Type="string" Value="[INSTALLFOLDER]$(var.ProductName).exe" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.DteClsidRegKey)\ProgID">
+          <RegistryValue Type="string" Value="$(var.ProductName).DTE.$(var.ProductVersion)" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.DteClsidRegKey)\VersionIndependentProgID">
+          <RegistryValue Type="string" Value="$(var.ProductName).DTE" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.DteClsidRegKey)\Programmable">
+          <RegistryValue Type="string" Value="" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.DteClsidRegKey)\TypeLib">
+          <RegistryValue Type="string" Value="{80cc9f66-e7d8-4ddd-85b6-d9e6cd0e93e2}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.DteClsidRegKey)\DefaultIcon">
+          <RegistryValue Type="string" Value="[INSTALLFOLDER]$(var.ProductName).exe,1200" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.DteClsidRegKey)\Version">
+          <RegistryValue Type="string" Value="$(var.ProductVersion)" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.SolutionClsidRegKey)">
+          <RegistryValue Type="string" Value="$(var.ProductName) Solution Object" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.SolutionClsidRegKey)\LocalServer32">
+          <RegistryValue Type="string" Value="[INSTALLFOLDER]$(var.ProductName).exe" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.SolutionClsidRegKey)\ProgID">
+          <RegistryValue Type="string" Value="$(var.ProductName).Solution.$(var.ProductVersion)" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.SolutionClsidRegKey)\VersionIndependentProgID">
+          <RegistryValue Type="string" Value="$(var.ProductName).Solution" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.SolutionClsidRegKey)\Programmable">
+          <RegistryValue Type="string" Value="" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.SolutionClsidRegKey)\TypeLib">
+          <RegistryValue Type="string" Value="{80cc9f66-e7d8-4ddd-85b6-d9e6cd0e93e2}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.SolutionClsidRegKey)\DefaultIcon">
+          <RegistryValue Type="string" Value="[INSTALLFOLDER]$(var.ProductName).exe,1200" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.SolutionClsidRegKey)\Version">
+          <RegistryValue Type="string" Value="$(var.ProductVersion)" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.ProductName).DTE.$(var.ProductVersion)">
+          <RegistryValue Type="string" Value="$(var.ProductName) DTE Object" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.ProductName).DTE.$(var.ProductVersion)\CLSID">
+          <RegistryValue Type="string" Value="{a4ced71f-6289-4b8d-9915-8051d9b06943}" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.ProductName).Solution.$(var.ProductVersion)">
+          <RegistryValue Type="string" Value="$(var.ProductName) Solution Object" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="$(var.ProductName).Solution.$(var.ProductVersion)\CLSID">
+          <RegistryValue Type="string" Value="{b5a15e4c-84c5-4adc-9efc-07bd3f8dc34f}" />
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\AppEnv\11.0\Apps\$(var.ProductName)_$(var.ProductVersion)">
+          <RegistryValue Type="string" Name="StubExePath" Value="[INSTALLFOLDER]$(var.ProductName).exe" />
+          <RegistryValue Type="string" Name="AppName" Value="$(var.ProductName)" />
+        </RegistryKey>
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\$(var.ProductName).exe">
+          <RegistryValue Type="string" Value="[INSTALLFOLDER]$(var.ProductName).exe" />
+        </RegistryKey>
+        
+        <!-- file association -->
+        <RegistryKey Root="HKCR" Key=".tea">
+          <RegistryValue Type="string" Value="teafile" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="teafile\shell\Open\Command">
+          <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]$(var.ProductName).exe&quot; &quot;%1&quot;" />
+        </RegistryKey>
+        <RegistryKey Root="HKCR" Key="teafile\DefaultIcon">
+          <RegistryValue Type="string" Value="[INSTALLFOLDER]TeaFile.ico" />
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="Folder1033">
+      <Component Id="Component1033" Guid="{21DCDE15-BBA5-4276-BD12-7D36389C9D82}">
+        <File Id="$(var.ProductName)UI.dll" Source="$(var.SourceFolder1033)$(var.ProductName)UI.dll" DiskId="1"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ProfilesFolder">
+      <Component Id="ProfilesComponent" Guid="{922C74DA-7F30-4DBF-93CB-6EC44A8AF6FC}">
+        <File Id="General.vssettings" Source="$(var.SourceProfilesFolder)General.vssettings" DiskId="1"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="TeaHouseFolder">
+      <Component Id="TeaHouseComponent" Guid="{FDB9EDA4-227F-42F7-A5BD-530D38BA321A}">
+        <File Id="DiscreteLogics.TeaHouse.dll" Source="$(var.SourceTeaHouseFolder)DiscreteLogics.TeaHouse.dll" DiskId="1"/>
+        <File Id="DiscreteLogics.TeaHouse.pkgdef" Source="$(var.SourceTeaHouseFolder)DiscreteLogics.TeaHouse.pkgdef" DiskId="1"/>        
+        <File Id="extension.vsixmanifest" Source="$(var.SourceTeaHouseFolder)extension.vsixmanifest" DiskId="1"/>
+        <File Id="Newtonsoft.Json.dll" Source="$(var.SourceTeaHouseFolder)Newtonsoft.Json.dll" DiskId="1"/>
+        <File Id="NLog.dll" Source="$(var.SourceTeaHouseFolder)NLog.dll" DiskId="1"/>
+        <File Id="$(var.ProductName).Application.pkgdef" Source="$(var.SourceTeaHouseFolder)$(var.ProductName).Application.pkgdef" DiskId="1"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="StartPageFolder">
+      <Component Id="StartPageComponent" Guid="{83255A3E-1EEF-472E-9989-515EDCD01A15}">
+        <File Id="StartPage.xaml" Source="$(var.SourceStartPageFolder)TeaHouseStartPage.xaml" DiskId="1"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+</Wix>
